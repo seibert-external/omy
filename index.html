@@ -33,174 +33,94 @@
       align-items: center;
       gap: 12px;
     }
-    .logo-dot {
-      width: 10px; height: 10px;
-      background: var(--lime);
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    header h1 {
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--white);
-      letter-spacing: 0.3px;
-    }
+    .logo-dot { width: 10px; height: 10px; background: var(--lime); border-radius: 50%; flex-shrink: 0; }
+    header h1 { font-size: 17px; font-weight: 600; color: var(--white); letter-spacing: 0.3px; }
 
-    main {
-      max-width: 740px;
-      margin: 40px auto;
-      padding: 0 20px 60px;
-    }
+    main { max-width: 740px; margin: 40px auto; padding: 0 20px 60px; }
 
-    .card {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 32px;
-      box-shadow: var(--shadow);
-      margin-bottom: 20px;
-    }
+    .card { background: var(--white); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
     .card h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
     .card > p { color: var(--gray-text); font-size: 13px; line-height: 1.6; margin-bottom: 24px; }
 
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 6px;
+    label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+    input[type="text"], input[type="date"], textarea {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid var(--gray-border); border-radius: 6px;
+      font-family: 'Poppins', sans-serif; font-size: 14px; color: var(--dark);
+      margin-bottom: 20px; transition: border-color 0.2s; background: var(--white);
     }
-    input[type="text"],
-    input[type="date"],
-    textarea {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1.5px solid var(--gray-border);
-      border-radius: 6px;
-      font-family: 'Poppins', sans-serif;
-      font-size: 14px;
-      color: var(--dark);
-      margin-bottom: 20px;
-      transition: border-color 0.2s;
-      background: var(--white);
-    }
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--lime);
-    }
+    input:focus, textarea:focus { outline: none; border-color: var(--lime); }
     textarea { resize: vertical; min-height: 100px; }
 
     .btn-primary {
-      background: var(--lime);
-      color: var(--dark);
-      border: none;
-      padding: 11px 22px;
-      border-radius: 6px;
-      font-family: 'Poppins', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s;
+      background: var(--lime); color: var(--dark); border: none;
+      padding: 11px 22px; border-radius: 6px;
+      font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s;
     }
     .btn-primary:hover { opacity: 0.82; }
 
     .btn-ghost {
-      background: transparent;
-      color: var(--gray-text);
-      border: 1.5px solid var(--gray-border);
-      padding: 10px 18px;
-      border-radius: 6px;
-      font-family: 'Poppins', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
+      background: transparent; color: var(--gray-text);
+      border: 1.5px solid var(--gray-border); padding: 10px 18px; border-radius: 6px;
+      font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
     }
     .btn-ghost:hover { border-color: var(--dark); color: var(--dark); }
 
+    .btn-danger {
+      background: transparent; color: #B91C1C;
+      border: 1.5px solid #FECACA; padding: 10px 18px; border-radius: 6px;
+      font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-danger:hover { background: #FEF2F2; border-color: #DC2626; }
+
     .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: var(--gray-text);
-      cursor: pointer;
-      margin-bottom: 24px;
-      background: none;
-      border: none;
-      font-family: 'Poppins', sans-serif;
-      padding: 0;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--gray-text); cursor: pointer;
+      margin-bottom: 24px; background: none; border: none;
+      font-family: 'Poppins', sans-serif; padding: 0;
     }
     .back-btn:hover { color: var(--dark); }
 
     .section-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--gray-text);
-      margin-bottom: 8px;
+      font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--gray-text); margin-bottom: 8px;
     }
 
     .proposal-box {
-      background: var(--gray-bg);
-      border-left: 3px solid var(--lime);
-      padding: 16px 18px;
-      border-radius: 4px;
-      font-size: 14px;
-      line-height: 1.7;
-      margin-bottom: 24px;
-      white-space: pre-wrap;
+      background: var(--gray-bg); border-left: 3px solid var(--lime);
+      padding: 16px 18px; border-radius: 4px;
+      font-size: 14px; line-height: 1.7; margin-bottom: 24px; white-space: pre-wrap;
     }
 
-    /* SETT-Box */
+    /* SETT */
     .sett-box {
-      background: var(--dark);
-      color: var(--white);
-      border-radius: var(--radius);
-      padding: 22px 26px;
-      margin-bottom: 28px;
+      background: var(--dark); color: var(--white);
+      border-radius: var(--radius); padding: 22px 26px; margin-bottom: 28px;
     }
-    .sett-box .sett-tag {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--lime);
-      margin-bottom: 8px;
-    }
+    .sett-tag { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--lime); margin-bottom: 8px; }
     .sett-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
     .sett-box p { font-size: 13px; color: rgba(255,255,255,0.72); line-height: 1.6; }
 
-    /* Resistance scale */
-    .resistance-scale {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-      margin: 12px 0 24px;
-    }
-    @media (max-width: 500px) {
-      .resistance-scale { grid-template-columns: repeat(3, 1fr); }
-    }
+    /* Resistance */
+    .resistance-scale { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 12px 0 24px; }
+    @media (max-width: 500px) { .resistance-scale { grid-template-columns: repeat(3, 1fr); } }
     .r-btn {
-      padding: 14px 6px;
-      border: 2px solid var(--gray-border);
-      border-radius: 8px;
-      background: var(--white);
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.15s;
-      font-family: 'Poppins', sans-serif;
+      padding: 14px 6px; border: 2px solid var(--gray-border); border-radius: 8px;
+      background: var(--white); cursor: pointer; text-align: center;
+      transition: all 0.15s; font-family: 'Poppins', sans-serif;
     }
     .r-btn:hover { border-color: #aaa; }
     .r-btn .r-num { font-size: 22px; font-weight: 700; display: block; }
     .r-btn .r-lab { font-size: 10px; color: var(--gray-text); display: block; margin-top: 3px; line-height: 1.3; }
-
     .r-btn[data-v="0"] .r-num { color: #16A34A; }
     .r-btn[data-v="1"] .r-num { color: #65A30D; }
     .r-btn[data-v="2"] .r-num { color: #CA8A04; }
     .r-btn[data-v="3"] .r-num { color: #EA580C; }
     .r-btn[data-v="4"] .r-num { color: #DC2626; }
     .r-btn[data-v="5"] .r-num { color: #7F1D1D; }
-
     .r-btn[data-v="0"].active { border-color: #16A34A; background: #F0FDF4; }
     .r-btn[data-v="1"].active { border-color: #65A30D; background: #F7FEE7; }
     .r-btn[data-v="2"].active { border-color: #CA8A04; background: #FEFCE8; }
@@ -210,88 +130,86 @@
 
     /* Decision list */
     .d-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 20px;
-      border: 1.5px solid var(--gray-border);
-      border-radius: var(--radius);
-      margin-bottom: 10px;
-      cursor: pointer;
-      transition: border-color 0.18s;
-      background: var(--white);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 20px; border: 1.5px solid var(--gray-border); border-radius: var(--radius);
+      margin-bottom: 10px; cursor: pointer; transition: border-color 0.18s; background: var(--white);
     }
     .d-item:hover { border-color: var(--dark); }
     .d-item h3 { font-size: 15px; font-weight: 500; margin-bottom: 3px; }
     .d-item .d-meta { font-size: 12px; color: var(--gray-text); }
 
-    .badge {
-      font-size: 11px; font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 20px;
-      white-space: nowrap;
-      margin-left: 12px;
-      flex-shrink: 0;
-    }
-    .badge-open    { background: #EEF2FF; color: #4338CA; }
-    .badge-running { background: #FFF7ED; color: #C2410C; }
-    .badge-done    { background: #F0FDF4; color: #15803D; }
-    .badge-meeting { background: #FEF2F2; color: #B91C1C; }
+    .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; margin-left: 12px; flex-shrink: 0; }
+    .badge-open        { background: #EEF2FF; color: #4338CA; }
+    .badge-running     { background: #FFF7ED; color: #C2410C; }
+    .badge-integration { background: #FEF9C3; color: #854D0E; }
+    .badge-done        { background: #F0FDF4; color: #15803D; }
+    .badge-meeting     { background: #FEF2F2; color: #B91C1C; }
 
     /* Votes */
-    .vote-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 14px;
-      background: var(--gray-bg);
-      border-radius: 6px;
-      margin-bottom: 6px;
-    }
+    .vote-row { display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: var(--gray-bg); border-radius: 6px; margin-bottom: 6px; }
     .v-name { font-size: 14px; font-weight: 500; flex: 1; min-width: 80px; }
-    .v-circle {
-      width: 34px; height: 34px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px; font-weight: 700;
-      color: var(--white);
-      flex-shrink: 0;
-    }
-    .vc-0 { background: #16A34A; }
-    .vc-1 { background: #65A30D; }
-    .vc-2 { background: #CA8A04; }
-    .vc-3 { background: #EA580C; }
-    .vc-4 { background: #DC2626; }
-    .vc-5 { background: #7F1D1D; }
+    .v-circle { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--white); flex-shrink: 0; }
+    .vc-0 { background: #16A34A; } .vc-1 { background: #65A30D; } .vc-2 { background: #CA8A04; }
+    .vc-3 { background: #EA580C; } .vc-4 { background: #DC2626; } .vc-5 { background: #7F1D1D; }
     .v-comment { font-size: 13px; color: var(--gray-text); flex: 2; }
 
-    /* Result banner */
-    .result-banner {
-      padding: 20px 24px;
-      border-radius: var(--radius);
-      margin-bottom: 20px;
-    }
-    .result-banner h2 { font-size: 17px; font-weight: 600; margin-bottom: 5px; }
-    .result-banner p  { font-size: 13px; }
-    .rb-done    { background: #F0FDF4; border: 2px solid #16A34A; }
-    .rb-done h2 { color: #15803D; }
-    .rb-done p  { color: #166534; }
-    .rb-meeting { background: #FEF2F2; border: 2px solid #DC2626; }
-    .rb-meeting h2 { color: #B91C1C; }
-    .rb-meeting p  { color: #991B1B; }
+    /* Banners */
+    .banner { padding: 18px 22px; border-radius: var(--radius); margin-bottom: 20px; }
+    .banner h2 { font-size: 17px; font-weight: 600; margin-bottom: 5px; }
+    .banner p  { font-size: 13px; }
+    .b-done    { background: #F0FDF4; border: 2px solid #16A34A; }
+    .b-done h2 { color: #15803D; } .b-done p { color: #166534; }
+    .b-meeting { background: #FEF2F2; border: 2px solid #DC2626; }
+    .b-meeting h2 { color: #B91C1C; } .b-meeting p { color: #991B1B; }
+    .b-integration { background: #FEFCE8; border: 2px solid #CA8A04; }
+    .b-integration h2 { color: #854D0E; } .b-integration p { color: #713F12; }
 
-    /* Empty state */
-    .empty {
-      text-align: center;
-      padding: 52px 24px;
-      color: var(--gray-text);
+    /* Moderator section */
+    .mod-section {
+      border-top: 1px solid var(--gray-border);
+      margin-top: 28px; padding-top: 24px;
     }
+    .mod-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--lime);
+      background: var(--dark); display: inline-block;
+      padding: 3px 8px; border-radius: 4px; margin-bottom: 16px;
+    }
+
+    /* Integration form */
+    .integration-form {
+      background: #FEFCE8; border: 1.5px solid #FDE047;
+      border-radius: var(--radius); padding: 20px 22px; margin-top: 16px;
+    }
+    .integration-form h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .integration-form p  { font-size: 13px; color: var(--gray-text); margin-bottom: 16px; }
+
+    /* Round indicator */
+    .round-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600;
+      background: var(--dark); color: var(--lime);
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 16px;
+    }
+
+    /* Round history */
+    .round-history { margin-top: 8px; }
+    .round-block { margin-bottom: 16px; }
+    .round-block-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .round-block-header h4 { font-size: 14px; font-weight: 600; }
+    .round-closed-badge { font-size: 11px; color: var(--gray-text); background: var(--gray-bg); padding: 2px 8px; border-radius: 10px; }
+
+    /* Misc */
+    .row  { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .divider { border: none; border-top: 1px solid var(--gray-border); margin: 20px 0; }
+    .empty { text-align: center; padding: 52px 24px; color: var(--gray-text); }
     .empty .icon { font-size: 36px; margin-bottom: 14px; }
     .empty h3 { font-size: 16px; color: var(--dark); margin-bottom: 6px; }
-    .empty p { font-size: 13px; max-width: 320px; margin: 0 auto; }
-
-    .row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .divider { border: none; border-top: 1px solid var(--gray-border); margin: 20px 0; }
+    .empty p  { font-size: 13px; max-width: 320px; margin: 0 auto; }
+    .hint { font-size: 12px; color: var(--gray-text); margin-top: -12px; margin-bottom: 20px; }
   </style>
 </head>
 <body>
@@ -312,30 +230,37 @@ const state = {
   view: 'home',
   currentId: null,
   voterName: localStorage.getItem('konsent_voter') || '',
-  decisions: JSON.parse(localStorage.getItem('konsent_data') || '[]')
+  decisions: []
 };
 let selectedR = null;
 
-function save() {
-  localStorage.setItem('konsent_data', JSON.stringify(state.decisions));
-}
-function go(view, id = null) {
-  state.view = view;
-  state.currentId = id;
-  selectedR = null;
-  render();
-  window.scrollTo(0, 0);
-}
-function current() {
-  return state.decisions.find(d => d.id === state.currentId);
-}
+// Load + migrate old data format
+(function loadData() {
+  const raw = JSON.parse(localStorage.getItem('konsent_data') || '[]');
+  state.decisions = raw.map(d => {
+    if (d.votes && !d.rounds) {
+      return { ...d, createdBy: d.createdBy || '', rounds: [{ num: 1, proposal: d.proposal, votes: d.votes, closed: false }] };
+    }
+    return d;
+  });
+})();
+
+function save() { localStorage.setItem('konsent_data', JSON.stringify(state.decisions)); }
+function go(view, id = null) { state.view = view; state.currentId = id; selectedR = null; render(); window.scrollTo(0, 0); }
+function current() { return state.decisions.find(d => d.id === state.currentId); }
+function activeRound(d) { return d.rounds[d.rounds.length - 1]; }
+
 function status(d) {
-  if (!d.votes.length) return { key: 'open', label: 'Offen' };
-  const allIn = d.participants.every(p => d.votes.find(v => v.voter === p));
-  if (!allIn) return { key: 'running', label: 'Läuft' };
-  return d.votes.some(v => v.value > 3)
-    ? { key: 'meeting', label: 'Meeting nötig' }
-    : { key: 'done',    label: 'Entschieden' };
+  const r = activeRound(d);
+  if (!r.closed) {
+    return r.votes.length === 0
+      ? { key: 'open', label: 'Offen' }
+      : { key: 'running', label: `Runde ${r.num} läuft` };
+  }
+  const hasBlock = r.votes.some(v => v.value > 3);
+  if (!hasBlock) return { key: 'done', label: 'Entschieden' };
+  if (r.num < 2)  return { key: 'integration', label: 'In Integration' };
+  return { key: 'meeting', label: 'Meeting nötig' };
 }
 
 // ── Views ────────────────────────────────────────────────────────
@@ -357,10 +282,11 @@ function viewHome() {
          </div></div>`
       : ds.map(d => {
           const s = status(d);
+          const r = activeRound(d);
           return `<div class="d-item" onclick="go('detail','${d.id}')">
             <div>
               <h3>${esc(d.title)}</h3>
-              <div class="d-meta">${d.participants.length} Teilnehmende · ${d.votes.length} Stimmen${d.deadline ? ' · Deadline ' + d.deadline : ''}</div>
+              <div class="d-meta">${d.participants.length} Teilnehmende · ${r.votes.length} Stimmen · Runde ${r.num}${d.deadline ? ' · bis ' + d.deadline : ''}</div>
             </div>
             <span class="badge badge-${s.key}">${s.label}</span>
           </div>`;
@@ -376,13 +302,16 @@ function viewCreate() {
       <h2>Neue Entscheidung</h2>
       <p>Der Vorschlag sollte bereits ausgearbeitet sein – das Tool unterstützt die Abstimmung, nicht die Ausarbeitung.</p>
 
+      <label>Dein Name (als Moderator*in) *</label>
+      <input type="text" id="f-mod" placeholder="Dein Name" value="${esc(state.voterName)}">
+
       <label>Titel der Entscheidung *</label>
       <input type="text" id="f-title" placeholder="z.B. Neues Meetingformat für den OE-Kreis">
 
       <label>Spannung / Entscheidungsbedarf *</label>
       <textarea id="f-tension" placeholder="Welches Problem oder welchen Bedarf adressiert dieser Vorschlag?"></textarea>
 
-      <label>Vorschlag *</label>
+      <label>Vorschlag (Runde 1) *</label>
       <textarea id="f-proposal" style="min-height:140px;" placeholder="Der ausgearbeitete Lösungsvorschlag, über den abgestimmt werden soll."></textarea>
 
       <label>Teilnehmende (kommasepariert) *</label>
@@ -399,68 +328,134 @@ function viewDetail() {
   const d = current();
   if (!d) return viewHome();
   const s = status(d);
-  const pending = d.participants.filter(p => !d.votes.find(v => v.voter === p));
+  const r = activeRound(d);
+  const pending = d.participants.filter(p => !r.votes.find(v => v.voter === p));
+  const blockers = r.votes.filter(v => v.value > 3);
 
   return `
     <button class="back-btn" onclick="go('home')">← Alle Entscheidungen</button>
 
     ${s.key === 'done' ? `
-      <div class="result-banner rb-done">
+      <div class="banner b-done">
         <h2>✓ Entscheidung async getroffen</h2>
         <p>Alle Widerstände ≤ 3 – kein Meeting erforderlich.</p>
       </div>` : ''}
     ${s.key === 'meeting' ? `
-      <div class="result-banner rb-meeting">
+      <div class="banner b-meeting">
         <h2>⚠ Synchrones Meeting empfohlen</h2>
-        <p>Mindestens ein Widerstand > 3. Nutze diesen Stand als Vorbereitung für das Meeting.</p>
+        <p>Nach zwei Runden bestehen noch Widerstände > 3. Ein Meeting ist der nächste Schritt.</p>
+      </div>` : ''}
+    ${s.key === 'integration' ? `
+      <div class="banner b-integration">
+        <h2>↻ Runde 1 abgeschlossen – Einwände vorhanden</h2>
+        <p>Es gibt Widerstände > 3. Als Moderator*in kannst du den Vorschlag überarbeiten und Runde 2 starten.</p>
       </div>` : ''}
 
     <div class="card">
-      <div class="section-label">Entscheidung</div>
-      <h2 style="margin-bottom:14px;">${esc(d.title)}</h2>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;">
+          <div class="section-label">Entscheidung</div>
+          <h2 style="margin-bottom:14px;">${esc(d.title)}</h2>
+        </div>
+        <span class="round-pill">Runde ${r.num}</span>
+      </div>
 
       <div class="section-label">Spannung</div>
       <p style="font-size:14px;line-height:1.7;color:var(--gray-text);margin-bottom:22px;">${esc(d.tension)}</p>
 
-      <div class="section-label">Vorschlag</div>
-      <div class="proposal-box">${esc(d.proposal)}</div>
+      <div class="section-label">Vorschlag (Runde ${r.num})</div>
+      <div class="proposal-box">${esc(r.proposal)}</div>
 
-      <div class="row">
-        <button class="btn-primary" onclick="go('vote','${d.id}')">Als Teilnehmer*in abstimmen</button>
-        ${(s.key === 'done' || s.key === 'meeting') ? `<button class="btn-ghost" onclick="exportMd('${d.id}')">Markdown exportieren</button>` : ''}
+      ${!r.closed ? `
+        <div class="row">
+          <button class="btn-primary" onclick="go('vote','${d.id}')">Als Teilnehmer*in abstimmen</button>
+        </div>` : `
+        <div class="row">
+          ${(s.key === 'done' || s.key === 'meeting') ? `<button class="btn-ghost" onclick="exportMd('${d.id}')">Markdown exportieren</button>` : ''}
+        </div>`
+      }
+
+      <!-- Moderator-Bereich -->
+      <div class="mod-section">
+        <div class="mod-label">Moderator*in</div>
+        ${!r.closed ? `
+          <p style="font-size:13px;color:var(--gray-text);margin-bottom:16px;">
+            ${r.votes.length === 0
+              ? 'Noch keine Stimmen. Schließe die Abstimmung, wenn alle abgestimmt haben oder die Deadline erreicht ist.'
+              : `${r.votes.length} von ${d.participants.length} Stimmen eingegangen.`}
+          </p>
+          <button class="btn-danger" onclick="closeRound('${d.id}')">Abstimmung schließen</button>
+        ` : s.key === 'integration' ? `
+          <p style="font-size:13px;color:var(--gray-text);margin-bottom:16px;">
+            ${blockers.length} Einwand${blockers.length > 1 ? 'e' : ''} (Widerstand > 3). Integriere die Rückmeldungen in einen überarbeiteten Vorschlag und starte Runde 2.
+          </p>
+          <div class="integration-form">
+            <h4>Überarbeiteter Vorschlag für Runde 2</h4>
+            <p>Berücksichtige die Einwände unten und passe den Vorschlag an.</p>
+            <label>Überarbeiteter Vorschlag *</label>
+            <textarea id="r2-proposal" style="min-height:120px;">${esc(r.proposal)}</textarea>
+            <button class="btn-primary" onclick="startRound2('${d.id}')">Runde 2 starten</button>
+          </div>
+        ` : s.key === 'done' ? `
+          <p style="font-size:13px;color:#15803D;">Entscheidung ist gefallen. Du kannst sie als Markdown exportieren.</p>
+          <button class="btn-ghost" onclick="exportMd('${d.id}')">Markdown exportieren</button>
+        ` : s.key === 'meeting' ? `
+          <p style="font-size:13px;color:var(--gray-text);margin-bottom:16px;">Exportiere den Stand als Meeting-Vorbereitung.</p>
+          <button class="btn-ghost" onclick="exportMd('${d.id}')">Markdown exportieren</button>
+        ` : ''}
       </div>
     </div>
 
+    <!-- Stimmen -->
     <div class="card">
-      <div class="section-label">Stimmen (${d.votes.length} / ${d.participants.length})</div>
-      ${d.votes.length === 0
+      <div class="section-label">Stimmen – Runde ${r.num} (${r.votes.length} / ${d.participants.length})</div>
+      ${r.votes.length === 0
         ? `<p style="font-size:13px;color:var(--gray-text);">Noch keine Stimmen abgegeben.</p>`
-        : d.votes.map(v => `
+        : r.votes.map(v => `
             <div class="vote-row">
               <span class="v-name">${esc(v.voter)}</span>
               <div class="v-circle vc-${v.value}" title="${R_LABELS[v.value]}">${v.value}</div>
               <span class="v-comment">${esc(v.comment || '')}</span>
             </div>`).join('')
       }
-      ${pending.length ? `<p style="font-size:12px;color:var(--gray-text);margin-top:12px;">Ausstehend: ${pending.map(esc).join(', ')}</p>` : ''}
-    </div>`;
+      ${pending.length && !r.closed ? `<p style="font-size:12px;color:var(--gray-text);margin-top:12px;">Ausstehend: ${pending.map(esc).join(', ')}</p>` : ''}
+    </div>
+
+    <!-- Runde 1 Archiv (wenn wir in Runde 2 sind) -->
+    ${d.rounds.length > 1 ? `
+      <div class="card">
+        <div class="section-label">Runde 1 – Archiv</div>
+        ${d.rounds[0].votes.map(v => `
+          <div class="vote-row" style="opacity:0.7;">
+            <span class="v-name">${esc(v.voter)}</span>
+            <div class="v-circle vc-${v.value}">${v.value}</div>
+            <span class="v-comment">${esc(v.comment || '')}</span>
+          </div>`).join('')}
+      </div>` : ''}
+  `;
 }
 
 function viewVote() {
   const d = current();
   if (!d) return viewHome();
+  const r = activeRound(d);
+  const isRound2 = r.num === 2;
+
   return `
     <button class="back-btn" onclick="go('detail','${d.id}')">← Zurück zur Entscheidung</button>
 
     <div class="sett-box">
-      <div class="sett-tag">Safe Enough to Try?</div>
-      <h3>Es geht nicht um die perfekte Lösung.</h3>
-      <p>Dein Widerstand zeigt, ob dieser Vorschlag sicher genug ist, um ihn auszuprobieren – als nächsten, überprüfbaren Schritt. 0–2: kein nennenswerter Widerstand. 3: erhöht, aber noch vertretbar. 4–5: schwerwiegender Einwand – löst ein synchrones Meeting aus.</p>
+      <div class="sett-tag">Safe Enough to Try? · Runde ${r.num}</div>
+      <h3>${isRound2 ? 'Der Vorschlag wurde überarbeitet.' : 'Es geht nicht um die perfekte Lösung.'}</h3>
+      <p>${isRound2
+        ? 'Die Einwände aus Runde 1 wurden in den Vorschlag integriert. Prüfe: Ist der überarbeitete Vorschlag jetzt sicher genug zum Ausprobieren?'
+        : 'Dein Widerstand zeigt, ob dieser Vorschlag sicher genug ist, um ihn auszuprobieren – als nächsten, überprüfbaren Schritt. 0–2: kein nennenswerter Widerstand. 3: erhöht, aber vertretbar. 4–5: schwerwiegender Einwand.'
+      }</p>
     </div>
 
     <div class="card">
-      <div class="section-label">Vorschlag</div>
-      <div class="proposal-box">${esc(d.proposal)}</div>
+      <div class="section-label">Vorschlag (Runde ${r.num})</div>
+      <div class="proposal-box">${esc(r.proposal)}</div>
 
       <hr class="divider">
 
@@ -476,8 +471,8 @@ function viewVote() {
           </button>`).join('')}
       </div>
 
-      <label>Ergänzung oder Einwand (optional)</label>
-      <textarea id="v-comment" placeholder="Einwand, Ergänzungsvorschlag oder Anmerkung – wird für alle sichtbar."></textarea>
+      <label>${isRound2 ? 'Sind deine Einwände aus Runde 1 ausreichend integriert? (optional)' : 'Einwand oder Ergänzungsvorschlag (optional)'}</label>
+      <textarea id="v-comment" placeholder="${isRound2 ? 'Was ist noch offen?' : 'Einwand, Ergänzungsvorschlag oder Anmerkung – wird für alle sichtbar.'}"></textarea>
 
       <button class="btn-primary" onclick="submitVote('${d.id}')">Abstimmen</button>
     </div>`;
@@ -485,21 +480,26 @@ function viewVote() {
 
 // ── Actions ──────────────────────────────────────────────────────
 function createDecision() {
+  const mod      = val('f-mod');
   const title    = val('f-title');
   const tension  = val('f-tension');
   const proposal = val('f-proposal');
   const people   = val('f-people');
   const deadline = val('f-deadline');
 
-  if (!title || !tension || !proposal || !people) {
+  if (!mod || !title || !tension || !proposal || !people) {
     alert('Bitte alle Pflichtfelder (*) ausfüllen.');
     return;
   }
+  state.voterName = mod;
+  localStorage.setItem('konsent_voter', mod);
+
   const participants = people.split(',').map(s => s.trim()).filter(Boolean);
   const d = {
     id: Date.now().toString(),
-    title, tension, proposal, participants, deadline,
-    votes: [],
+    title, tension, participants, deadline,
+    createdBy: mod,
+    rounds: [{ num: 1, proposal, votes: [], closed: false }],
     createdAt: new Date().toISOString()
   };
   state.decisions.unshift(d);
@@ -509,23 +509,40 @@ function createDecision() {
 
 function pickR(v) {
   selectedR = v;
-  document.querySelectorAll('.r-btn').forEach(b => {
-    b.classList.toggle('active', parseInt(b.dataset.v) === v);
-  });
+  document.querySelectorAll('.r-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.v) === v));
 }
 
 function submitVote(id) {
   const name    = val('v-name');
   const comment = val('v-comment');
-  if (!name)            { alert('Bitte deinen Namen eingeben.'); return; }
+  if (!name)              { alert('Bitte deinen Namen eingeben.'); return; }
   if (selectedR === null) { alert('Bitte einen Widerstandswert wählen.'); return; }
 
   state.voterName = name;
   localStorage.setItem('konsent_voter', name);
 
   const d = state.decisions.find(d => d.id === id);
-  d.votes = d.votes.filter(v => v.voter !== name);
-  d.votes.push({ voter: name, value: selectedR, comment });
+  const r = activeRound(d);
+  r.votes = r.votes.filter(v => v.voter !== name);
+  r.votes.push({ voter: name, value: selectedR, comment });
+  save();
+  go('detail', id);
+}
+
+function closeRound(id) {
+  const d = state.decisions.find(d => d.id === id);
+  const r = activeRound(d);
+  if (r.votes.length === 0 && !confirm('Noch keine Stimmen vorhanden. Trotzdem schließen?')) return;
+  r.closed = true;
+  save();
+  render();
+}
+
+function startRound2(id) {
+  const proposal = val('r2-proposal');
+  if (!proposal) { alert('Bitte einen überarbeiteten Vorschlag eingeben.'); return; }
+  const d = state.decisions.find(d => d.id === id);
+  d.rounds.push({ num: 2, proposal, votes: [], closed: false });
   save();
   go('detail', id);
 }
@@ -535,18 +552,25 @@ function exportMd(id) {
   const s  = status(d);
   const dt = new Date().toLocaleDateString('de-DE');
   let md = `# Konsent-Entscheidung: ${d.title}\n\n`;
-  md += `**Datum:** ${dt}  \n**Status:** ${s.label}\n\n`;
+  md += `**Datum:** ${dt}  \n**Status:** ${s.label}  \n**Moderator*in:** ${d.createdBy || '–'}\n\n`;
   md += `## Spannung\n${d.tension}\n\n`;
-  md += `## Vorschlag\n${d.proposal}\n\n`;
-  md += `## Abstimmung (Widerstand 0–5)\n\n`;
-  md += `| Person | Widerstand | Kommentar |\n|---|---|---|\n`;
-  d.votes.forEach(v => {
-    md += `| ${v.voter} | ${v.value} – ${R_LABELS[v.value]} | ${v.comment || '–'} |\n`;
+
+  d.rounds.forEach(r => {
+    md += `## Runde ${r.num} – Vorschlag\n${r.proposal}\n\n`;
+    md += `### Abstimmung (Widerstand 0–5)\n\n`;
+    if (r.votes.length) {
+      md += `| Person | Widerstand | Kommentar |\n|---|---|---|\n`;
+      r.votes.forEach(v => { md += `| ${v.voter} | ${v.value} – ${R_LABELS[v.value]} | ${v.comment || '–'} |\n`; });
+    } else {
+      md += `_Keine Stimmen._\n`;
+    }
+    md += '\n';
   });
-  md += `\n## Ergebnis\n`;
+
+  md += `## Ergebnis\n`;
   md += s.key === 'done'
     ? `✓ Entscheidung async getroffen. Alle Widerstände ≤ 3.\n`
-    : `⚠ Synchrones Meeting empfohlen. Mindestens ein Widerstand > 3.\n`;
+    : `⚠ Synchrones Meeting empfohlen. Mindestens ein Widerstand > 3 nach Runde ${activeRound(d).num}.\n`;
 
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(new Blob([md], { type: 'text/markdown' })),
@@ -556,21 +580,13 @@ function exportMd(id) {
 }
 
 // ── Utils ────────────────────────────────────────────────────────
-function val(id) {
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : '';
-}
-function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 // ── Render ────────────────────────────────────────────────────────
 function render() {
-  const app = document.getElementById('app');
   const views = { home: viewHome, create: viewCreate, detail: viewDetail, vote: viewVote };
-  app.innerHTML = (views[state.view] || viewHome)();
+  document.getElementById('app').innerHTML = (views[state.view] || viewHome)();
 }
 
 render();
