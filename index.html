@@ -222,6 +222,7 @@
       padding: 12px 0; cursor: pointer; border-top: 1px solid var(--gray-border); margin-top: 8px;
     }
     .archive-header span { font-size: 13px; font-weight: 500; color: var(--gray-text); }
+    .list-section-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gray-text); margin: 4px 2px 10px; }
     .archive-header .chevron { font-size: 12px; color: var(--gray-text); transition: transform 0.2s; }
     .archive-header.open .chevron { transform: rotate(180deg); }
 
@@ -381,13 +382,11 @@ function renderDecisionItem(d) {
 }
 
 function viewHome() {
-  const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
-  const now = Date.now();
-  const recent  = state.decisions.filter(d => now - new Date(d.createdAt) <= THREE_DAYS);
-  const archive = state.decisions.filter(d => now - new Date(d.createdAt) > THREE_DAYS);
-  const archiveLabel = archive.length === 1
-    ? 'Archiv (1 ältere Entscheidung)'
-    : `Archiv (${archive.length} ältere Entscheidungen)`;
+  const active  = state.decisions.filter(d => ['open','running','integration'].includes(status(d).key));
+  const decided = state.decisions.filter(d => ['done','meeting'].includes(status(d).key));
+  const shown   = decided.slice(0, 5);
+  const archive = decided.slice(5);
+  const archiveLabel = archive.length === 1 ? '1 weitere Entscheidung' : `${archive.length} weitere Entscheidungen`;
 
   return `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
@@ -439,15 +438,23 @@ function viewHome() {
            <h3>Noch keine Entscheidungen</h3>
            <p>Erstelle deine erste Entscheidung und lade dein Team ein, async abzustimmen.</p>
          </div></div>`
-      : `${recent.map(renderDecisionItem).join('')}
-         ${archive.length > 0 ? `
-           <div id="archive-header" class="archive-header${archiveOpen ? ' open' : ''}" onclick="toggleArchive()">
-             <span>${archiveLabel}</span>
-             <span class="chevron">▼</span>
-           </div>
-           <div id="archive-list" style="display:${archiveOpen ? 'block' : 'none'};">
-             ${archive.map(renderDecisionItem).join('')}
-           </div>` : ''}
+      : `<div class="list-section-label">Laufende Entscheidungen</div>
+         ${active.length > 0
+           ? active.map(renderDecisionItem).join('')
+           : '<p style="font-size:13px;color:var(--gray-text);margin-bottom:20px;padding:0 2px;">Keine laufenden Entscheidungen.</p>'
+         }
+         ${decided.length > 0 ? `
+           <div class="list-section-label" style="margin-top:24px;">Letzte getroffene Entscheidungen</div>
+           ${shown.map(renderDecisionItem).join('')}
+           ${archive.length > 0 ? `
+             <div id="archive-header" class="archive-header${archiveOpen ? ' open' : ''}" onclick="toggleArchive()">
+               <span>${archiveLabel}</span>
+               <span class="chevron">▼</span>
+             </div>
+             <div id="archive-list" style="display:${archiveOpen ? 'block' : 'none'};">
+               ${archive.map(renderDecisionItem).join('')}
+             </div>` : ''}
+         ` : ''}
       `
     }`;
 }
