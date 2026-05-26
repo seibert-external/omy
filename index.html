@@ -250,6 +250,10 @@ function go(view, id = null) { state.view = view; state.currentId = id; selected
 function current() { return state.decisions.find(d => d.id === state.currentId); }
 function activeRound(d) { return d.rounds[d.rounds.length - 1]; }
 
+function hasComments(r) {
+  return r.votes.some(v => v.comment && v.comment.trim());
+}
+
 function status(d) {
   const r = activeRound(d);
   if (!r.closed) {
@@ -257,10 +261,11 @@ function status(d) {
       ? { key: 'open', label: 'Offen' }
       : { key: 'running', label: `Runde ${r.num} läuft` };
   }
-  const hasBlock = r.votes.some(v => v.value > 3);
-  if (!hasBlock) return { key: 'done', label: 'Entschieden' };
-  if (r.num < 2)  return { key: 'integration', label: 'In Integration' };
-  return { key: 'meeting', label: 'Meeting nötig' };
+  const hasBlock   = r.votes.some(v => v.value > 3);
+  const needsRound2 = r.num === 1 && (hasBlock || hasComments(r));
+  if (needsRound2) return { key: 'integration', label: 'In Integration' };
+  if (hasBlock)    return { key: 'meeting', label: 'Meeting nötig' };
+  return { key: 'done', label: 'Entschieden' };
 }
 
 // ── Views ────────────────────────────────────────────────────────
@@ -286,7 +291,7 @@ function viewHome() {
           return `<div class="d-item" onclick="go('detail','${d.id}')">
             <div>
               <h3>${esc(d.title)}</h3>
-              <div class="d-meta">${d.participants.length} Teilnehmende · ${r.votes.length} Stimmen · Runde ${r.num}${d.deadline ? ' · bis ' + d.deadline : ''}</div>
+              <div class="d-meta">${r.votes.length} Stimmen · Runde ${r.num}${d.deadline ? ' · bis ' + d.deadline : ''}</div>
             </div>
             <span class="badge badge-${s.key}">${s.label}</span>
           </div>`;
@@ -303,7 +308,7 @@ function viewCreate() {
       <p>Der Vorschlag sollte bereits ausgearbeitet sein – das Tool unterstützt die Abstimmung, nicht die Ausarbeitung.</p>
 
       <label>Dein Name (als Moderator*in) *</label>
-      <input type="text" id="f-mod" placeholder="Dein Name" value="${esc(state.voterName)}">
+      <input type="text" id="f-mod" placeholder="Dein Name">
 
       <label>Titel der Entscheidung *</label>
       <input type="text" id="f-title" placeholder="z.B. Neues Meetingformat für den OE-Kreis">
@@ -313,9 +318,6 @@ function viewCreate() {
 
       <label>Vorschlag (Runde 1) *</label>
       <textarea id="f-proposal" style="min-height:140px;" placeholder="Der ausgearbeitete Lösungsvorschlag, über den abgestimmt werden soll."></textarea>
-
-      <label>Teilnehmende (kommasepariert) *</label>
-      <input type="text" id="f-people" placeholder="z.B. Jan, Caro, Tobias, Miriam">
 
       <label>Abstimmungs-Deadline (optional)</label>
       <input type="date" id="f-deadline" min="${today}">
@@ -329,8 +331,9 @@ function viewDetail() {
   if (!d) return viewHome();
   const s = status(d);
   const r = activeRound(d);
-  const pending = d.participants.filter(p => !r.votes.find(v => v.voter === p));
+  const sortedVotes = [...r.votes].sort((a, b) => a.voter.localeCompare(b.voter, 'de'));
   const blockers = r.votes.filter(v => v.value > 3);
+  const withComments = r.votes.filter(v => v.comment && v.comment.trim());
 
   return `
     <button class="back-btn" onclick="go('home')">← Alle Entscheidungen</button>
@@ -347,8 +350,8 @@ function viewDetail() {
       </div>` : ''}
     ${s.key === 'integration' ? `
       <div class="banner b-integration">
-        <h2>↻ Runde 1 abgeschlossen – Einwände vorhanden</h2>
-        <p>Es gibt Widerstände > 3. Als Moderator*in kannst du den Vorschlag überarbeiten und Runde 2 starten.</p>
+        <h2>↻ Runde 1 abgeschlossen – Runde 2 erforderlich</h2>
+        <p>${blockers.length > 0 ? `${blockers.length} Widerstand${blockers.length > 1 ? 'e' : ''} > 3.` : ''} ${withComments.length > 0 ? `${withComments.length} Person${withComments.length > 1 ? 'en haben' : ' hat'} Einwände oder Verbesserungen eingebracht.` : ''} Überarbeite den Vorschlag und starte Runde 2.</p>
       </div>` : ''}
 
     <div class="card">
@@ -382,7 +385,7 @@ function viewDetail() {
           <p style="font-size:13px;color:var(--gray-text);margin-bottom:16px;">
             ${r.votes.length === 0
               ? 'Noch keine Stimmen. Schließe die Abstimmung, wenn alle abgestimmt haben oder die Deadline erreicht ist.'
-              : `${r.votes.length} von ${d.participants.length} Stimmen eingegangen.`}
+              : `${r.votes.length} Stimme${r.votes.length !== 1 ? 'n' : ''} eingegangen.`}
           </p>
           <button class="btn-danger" onclick="closeRound('${d.id}')">Abstimmung schließen</button>
         ` : s.key === 'integration' ? `
@@ -408,17 +411,16 @@ function viewDetail() {
 
     <!-- Stimmen -->
     <div class="card">
-      <div class="section-label">Stimmen – Runde ${r.num} (${r.votes.length} / ${d.participants.length})</div>
-      ${r.votes.length === 0
+      <div class="section-label">Stimmen – Runde ${r.num} (${sortedVotes.length})</div>
+      ${sortedVotes.length === 0
         ? `<p style="font-size:13px;color:var(--gray-text);">Noch keine Stimmen abgegeben.</p>`
-        : r.votes.map(v => `
+        : sortedVotes.map(v => `
             <div class="vote-row">
               <span class="v-name">${esc(v.voter)}</span>
               <div class="v-circle vc-${v.value}" title="${R_LABELS[v.value]}">${v.value}</div>
               <span class="v-comment">${esc(v.comment || '')}</span>
             </div>`).join('')
       }
-      ${pending.length && !r.closed ? `<p style="font-size:12px;color:var(--gray-text);margin-top:12px;">Ausstehend: ${pending.map(esc).join(', ')}</p>` : ''}
     </div>
 
     <!-- Runde 1 Archiv (wenn wir in Runde 2 sind) -->
@@ -460,7 +462,7 @@ function viewVote() {
       <hr class="divider">
 
       <label>Dein Name</label>
-      <input type="text" id="v-name" placeholder="Dein Name" value="${esc(state.voterName)}">
+      <input type="text" id="v-name" placeholder="Dein Name">
 
       <label>Wie groß ist dein Widerstand gegen diesen Vorschlag?</label>
       <div class="resistance-scale">
@@ -484,20 +486,16 @@ function createDecision() {
   const title    = val('f-title');
   const tension  = val('f-tension');
   const proposal = val('f-proposal');
-  const people   = val('f-people');
   const deadline = val('f-deadline');
 
-  if (!mod || !title || !tension || !proposal || !people) {
+  if (!mod || !title || !tension || !proposal) {
     alert('Bitte alle Pflichtfelder (*) ausfüllen.');
     return;
   }
-  state.voterName = mod;
-  localStorage.setItem('konsent_voter', mod);
 
-  const participants = people.split(',').map(s => s.trim()).filter(Boolean);
   const d = {
     id: Date.now().toString(),
-    title, tension, participants, deadline,
+    title, tension, deadline,
     createdBy: mod,
     rounds: [{ num: 1, proposal, votes: [], closed: false }],
     createdAt: new Date().toISOString()
