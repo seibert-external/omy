@@ -78,11 +78,13 @@
 
     .back-btn {
       display: inline-flex; align-items: center; gap: 6px;
-      font-size: 13px; color: var(--gray-text); cursor: pointer;
-      margin-bottom: 24px; background: none; border: none;
-      font-family: 'Poppins', sans-serif; padding: 0;
+      font-size: 13px; font-weight: 500; color: var(--gray-text); cursor: pointer;
+      margin-bottom: 24px; background: var(--white);
+      border: 1.5px solid var(--gray-border); border-radius: 6px;
+      font-family: 'Poppins', sans-serif; padding: 8px 14px;
+      transition: border-color 0.2s, color 0.2s;
     }
-    .back-btn:hover { color: var(--dark); }
+    .back-btn:hover { color: var(--dark); border-color: var(--dark); }
 
     .section-label {
       font-size: 11px; font-weight: 600; letter-spacing: 1px;
@@ -619,6 +621,8 @@ function viewDetail() {
             <span class="v-comment">${esc(v.comment || '')}</span>
           </div>`).join('')}
       </div>` : ''}
+
+    <button class="back-btn" onclick="go('home')" style="margin-top:8px;">← Alle Entscheidungen</button>
   `;
 }
 
