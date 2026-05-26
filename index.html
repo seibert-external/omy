@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Konsent – Entscheidungen treffen</title>
+  <title>Ωmy – Async Konsent-Entscheidungen</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -235,13 +235,27 @@
     .next-steps-box a { font-size: 13px; color: #15803D; word-break: break-all; }
     .next-steps-form { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-border); }
     .next-steps-form h4 { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+
+    /* Help panel */
+    .help-panel { background: var(--white); border: 1.5px solid var(--gray-border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+    .help-header { display: flex; align-items: center; gap: 8px; padding: 12px 16px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--gray-text); user-select: none; transition: color 0.15s; }
+    .help-header:hover { color: var(--dark); }
+    .help-header .h-chev { margin-left: auto; font-size: 11px; transition: transform 0.2s; }
+    .help-header.open .h-chev { transform: rotate(180deg); }
+    .help-body { padding: 2px 18px 18px; font-size: 13px; line-height: 1.7; }
+    .help-body h4 { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--gray-text); margin: 14px 0 6px; }
+    .help-body ol, .help-body ul { padding-left: 18px; }
+    .help-body li { margin-bottom: 3px; }
+    .help-scale { display: flex; gap: 5px; flex-wrap: wrap; margin: 6px 0; }
+    .help-scale span { font-size: 11px; background: var(--gray-bg); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+    .help-sett { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--gray-border); color: var(--gray-text); }
   </style>
 </head>
 <body>
 
 <header>
   <div class="logo-dot"></div>
-  <h1>Konsent</h1>
+  <h1><span style="color:var(--lime);">Ω</span>my</h1>
 </header>
 
 <main id="app"></main>
@@ -262,6 +276,7 @@ const state = {
 };
 let selectedR = null;
 let archiveOpen = false;
+let helpOpen = false;
 
 function migrate(d) {
   if (d.votes && !d.rounds) {
@@ -359,13 +374,41 @@ function viewHome() {
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
       <div>
         <h2 style="font-size:22px;font-weight:600;">Entscheidungen</h2>
-        <p style="font-size:13px;color:var(--gray-text);margin-top:3px;">Konsent-basiert · Async · Safe Enough to Try</p>
+        <p style="font-size:13px;color:var(--gray-text);margin-top:3px;">Async · Widerstand · Safe Enough to Try</p>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn-ghost" onclick="refresh()" title="Aktualisieren" style="padding:10px 14px;">↻</button>
         <button class="btn-primary" onclick="go('create')">+ Neue Entscheidung</button>
       </div>
     </div>
+    <div class="help-panel">
+      <div id="help-hdr" class="help-header${helpOpen ? ' open' : ''}" onclick="toggleHelp()">
+        <span style="color:var(--lime);font-weight:700;font-size:14px;">?</span>
+        Wie funktioniert Ωmy?
+        <span class="h-chev">▼</span>
+      </div>
+      <div id="help-bdy" class="help-body" style="display:${helpOpen ? 'block' : 'none'};">
+        <p>Ωmy unterstützt asynchrone Entscheidungen nach dem Konsent-Prinzip. Voraussetzung: Ein ausgearbeiteter Vorschlag liegt vor.</p>
+        <h4>Ablauf</h4>
+        <ol>
+          <li><strong>Moderator*in</strong> legt Titel, Spannung und Vorschlag an und teilt die Seite</li>
+          <li><strong>Alle Beteiligten</strong> öffnen die Entscheidung, wählen ihren Widerstand (0–5) und können optional einen Einwand schreiben</li>
+          <li><strong>Moderator*in</strong> schließt die Abstimmung und wertet aus</li>
+        </ol>
+        <h4>Widerstandsskala</h4>
+        <div class="help-scale">
+          <span>0 – kein</span><span>1 – gering</span><span>2 – leicht erhöht</span><span>3 – erhöht</span><span>4 – stark</span><span>5 – extrem</span>
+        </div>
+        <h4>Ergebnis</h4>
+        <ul>
+          <li>Alle ≤ 3 → <strong>Entscheidung gefallen</strong> – kein Meeting nötig</li>
+          <li>Jemand > 3 oder Einwand geschrieben → <strong>Runde 2</strong> – Vorschlag wird überarbeitet, dann erneut abgestimmt</li>
+          <li>Nach Runde 2 noch > 3 → <strong>Meeting</strong> – synchrone Klärung ist nötig</li>
+        </ul>
+        <p class="help-sett"><strong style="color:var(--dark);">Safe Enough to Try:</strong> Es geht nicht um den perfekten Vorschlag – sondern um den nächsten Schritt, der sicher genug ist zum Ausprobieren.</p>
+      </div>
+    </div>
+
     ${state.decisions.length === 0
       ? `<div class="card"><div class="empty">
            <div class="icon">⚡</div>
@@ -687,7 +730,7 @@ function exportMd(id) {
   const d  = state.decisions.find(d => d.id === id);
   const s  = status(d);
   const dt = new Date().toLocaleDateString('de-DE');
-  let md = `# Konsent-Entscheidung: ${d.title}\n\n`;
+  let md = `# Ωmy: ${d.title}\n\n`;
   md += `**Datum:** ${dt}  \n**Status:** ${s.label}  \n**Moderator*in:** ${d.createdBy || '–'}\n\n`;
   md += `## Spannung\n${d.tension}\n\n`;
 
@@ -720,7 +763,7 @@ function exportMd(id) {
 
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(new Blob([md], { type: 'text/markdown' })),
-    download: `konsent-${d.title.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')}.md`
+    download: `ohmy-${d.title.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')}.md`
   });
   a.click();
 }
@@ -728,6 +771,14 @@ function exportMd(id) {
 // ── Utils ────────────────────────────────────────────────────────
 function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function toggleHelp() {
+  helpOpen = !helpOpen;
+  const hdr = document.getElementById('help-hdr');
+  const bdy = document.getElementById('help-bdy');
+  if (hdr) hdr.classList.toggle('open', helpOpen);
+  if (bdy) bdy.style.display = helpOpen ? 'block' : 'none';
+}
 
 function toggleArchive() {
   archiveOpen = !archiveOpen;
