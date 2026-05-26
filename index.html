@@ -267,6 +267,21 @@
 <script>
 // ── Constants ────────────────────────────────────────────────────
 const R_LABELS = ['kein', 'gering', 'leicht erhöht', 'erhöht', 'stark', 'extrem'];
+const R_TITLES = [
+  'Kein Widerstand – du stimmst zu oder hast keine nennenswerten Einwände',
+  'Geringer Widerstand – kleine Bedenken, aber vertretbar',
+  'Leicht erhöht – merklicher Widerstand, du kannst aber damit leben',
+  'Erhöht – spürbarer Widerstand; das Ergebnis hängt auch von dir ab',
+  'Stark – schwerwiegender Einwand; Runde 2 oder Meeting wahrscheinlich',
+  'Extrem – fundamentaler Einwand; synchrones Meeting notwendig'
+];
+const BADGE_TITLES = {
+  open:        'Noch keine Stimmen abgegeben',
+  running:     'Abstimmung läuft – Stimmen können noch abgegeben werden',
+  integration: 'Runde 1 geschlossen – Vorschlag wird überarbeitet, dann folgt Runde 2',
+  done:        'Alle Widerstände ≤ 3 – Entscheidung ist async gefallen',
+  meeting:     'Widerstand > 3 nach Runde 2 – synchrones Meeting ist der nächste Schritt'
+};
 
 // ── State ────────────────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/a/macros/seibert.group/s/AKfycbyNMQDcZozcZMhcBDJK1XGLr0Q3OIwOtDcChNeiAcrGfZ9Lv8yI57ShV4lJ4Z_w_Ge1/exec';
@@ -361,7 +376,7 @@ function renderDecisionItem(d) {
         <span class="chip"><strong>Runde:</strong> ${r.num}</span>
       </div>
     </div>
-    <span class="badge badge-${s.key}">${s.label}</span>
+    <span class="badge badge-${s.key}" title="${BADGE_TITLES[s.key]}">${s.label}</span>
   </div>`;
 }
 
@@ -529,7 +544,7 @@ function viewDetail() {
               ? 'Noch keine Stimmen. Schließe die Abstimmung, wenn alle abgestimmt haben oder die Deadline erreicht ist.'
               : `${r.votes.length} Stimme${r.votes.length !== 1 ? 'n' : ''} eingegangen.`}
           </p>
-          <button class="btn-danger" onclick="closeRound('${d.id}')">Abstimmung schließen</button>
+          <button class="btn-danger" onclick="closeRound('${d.id}')" title="Abstimmungsrunde beenden und Ergebnis auswerten">Abstimmung schließen</button>
         ` : s.key === 'integration' ? `
           <p style="font-size:13px;color:var(--gray-text);margin-bottom:16px;">
             ${blockers.length} Einwand${blockers.length > 1 ? 'e' : ''} (Widerstand > 3). Integriere die Rückmeldungen in einen überarbeiteten Vorschlag und starte Runde 2.
@@ -539,14 +554,14 @@ function viewDetail() {
             <p>Berücksichtige die Einwände unten und passe den Vorschlag an.</p>
             <label>Überarbeiteter Vorschlag *</label>
             <textarea id="r2-proposal" style="min-height:120px;">${esc(r.proposal)}</textarea>
-            <button class="btn-primary" onclick="startRound2('${d.id}')">Runde 2 starten</button>
+            <button class="btn-primary" onclick="startRound2('${d.id}')" title="Überarbeiteten Vorschlag einreichen und zweite Abstimmungsrunde starten">Runde 2 starten</button>
           </div>
-          <button class="btn-ghost" style="margin-top:10px;" onclick="reopenRound('${d.id}')">Abstimmung wieder eröffnen</button>
+          <button class="btn-ghost" style="margin-top:10px;" onclick="reopenRound('${d.id}')" title="Abstimmung wieder öffnen – bestehende Stimmen bleiben erhalten">Abstimmung wieder eröffnen</button>
         ` : s.key === 'done' ? `
           <p style="font-size:13px;color:#15803D;margin-bottom:16px;">Entscheidung ist gefallen.</p>
           <div class="row">
-            <button class="btn-ghost" onclick="exportMd('${d.id}')">Ergebnis exportieren</button>
-            <button class="btn-ghost" onclick="reopenRound('${d.id}')">Abstimmung wieder eröffnen</button>
+            <button class="btn-ghost" onclick="exportMd('${d.id}')" title="Ergebnis als Markdown-Datei herunterladen">Ergebnis exportieren</button>
+            <button class="btn-ghost" onclick="reopenRound('${d.id}')" title="Abstimmung wieder öffnen – bestehende Stimmen bleiben erhalten">Abstimmung wieder eröffnen</button>
           </div>
           <div class="next-steps-form">
             <h4>Nächste Schritte</h4>
@@ -558,8 +573,8 @@ function viewDetail() {
         ` : s.key === 'meeting' ? `
           <p style="font-size:13px;color:var(--gray-text);margin-bottom:16px;">Exportiere den Stand als Meeting-Vorbereitung.</p>
           <div class="row">
-            <button class="btn-ghost" onclick="exportMd('${d.id}')">Ergebnis exportieren</button>
-            <button class="btn-ghost" onclick="reopenRound('${d.id}')">Abstimmung wieder eröffnen</button>
+            <button class="btn-ghost" onclick="exportMd('${d.id}')" title="Ergebnis als Markdown-Datei herunterladen">Ergebnis exportieren</button>
+            <button class="btn-ghost" onclick="reopenRound('${d.id}')" title="Abstimmung wieder öffnen – bestehende Stimmen bleiben erhalten">Abstimmung wieder eröffnen</button>
           </div>
           <div class="next-steps-form">
             <h4>Nächste Schritte</h4>
@@ -630,7 +645,7 @@ function viewVote() {
       <label>Wie groß ist dein Widerstand gegen diesen Vorschlag?</label>
       <div class="resistance-scale">
         ${[0,1,2,3,4,5].map(i => `
-          <button class="r-btn" data-v="${i}" onclick="pickR(${i})">
+          <button class="r-btn" data-v="${i}" onclick="pickR(${i})" title="${R_TITLES[i]}">
             <span class="r-num">${i}</span>
             <span class="r-lab">${R_LABELS[i]}</span>
           </button>`).join('')}
