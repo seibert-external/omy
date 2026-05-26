@@ -238,6 +238,7 @@
     .next-steps-box a { font-size: 13px; color: #15803D; word-break: break-all; }
     .next-steps-form { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-border); }
     .next-steps-form h4 { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+    .next-steps-form.ns-fresh { background: #FEFCE8; border: 1.5px solid #FDE047; border-radius: var(--radius); padding: 16px 18px; }
 
     /* Help panel */
     .help-panel { background: var(--white); border: 1.5px solid var(--gray-border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
@@ -520,7 +521,8 @@ function viewDetail() {
       <div class="next-steps-box">
         <div class="ns-label">Nächste Schritte</div>
         <p>${esc(d.nextSteps)}</p>
-        ${d.docsLink ? `<a href="${esc(d.docsLink)}" target="_blank" rel="noopener">📎 Dokumentation öffnen</a>` : ''}
+        ${d.responsible ? `<p style="font-size:13px;margin-top:6px;"><strong>Verantwortlich:</strong> ${esc(d.responsible)}</p>` : ''}
+        ${d.docsLink ? `<a href="${esc(d.docsLink)}" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;">📎 Dokumentation öffnen</a>` : ''}
       </div>` : ''}
 
     <div class="card">
@@ -572,12 +574,14 @@ function viewDetail() {
             <button class="btn-ghost" onclick="exportMd('${d.id}')" title="Ergebnis als Markdown-Datei herunterladen">Ergebnis exportieren</button>
             <button class="btn-ghost" onclick="reopenRound('${d.id}')" title="Abstimmung wieder öffnen – bestehende Stimmen bleiben erhalten">Abstimmung wieder eröffnen</button>
           </div>
-          <div class="next-steps-form">
-            <h4>Nächste Schritte</h4>
-            <textarea id="ns-text" placeholder="Was passiert als nächstes? z.B. Entscheidung umsetzen, wer ist verantwortlich…">${esc(d.nextSteps || '')}</textarea>
-            <label style="margin-top:-8px;">Link zur Dokumentation (optional)</label>
+          <div class="next-steps-form${!d.nextSteps ? ' ns-fresh' : ''}">
+            <h4>${!d.nextSteps ? 'Wie geht es weiter?' : 'Nächste Schritte'}</h4>
+            <textarea id="ns-text" placeholder="Was passiert als nächstes?">${esc(d.nextSteps || '')}</textarea>
+            <label>Verantwortlich (optional)</label>
+            <input type="text" id="ns-responsible" placeholder="Name der verantwortlichen Person" value="${esc(d.responsible || '')}">
+            <label>Dokumentations-Link (optional)</label>
             <input type="text" id="ns-link" placeholder="https://…" value="${esc(d.docsLink || '')}">
-            <button class="btn-ghost" onclick="saveNextSteps('${d.id}')">Speichern</button>
+            <button class="${!d.nextSteps ? 'btn-primary' : 'btn-ghost'}" onclick="saveNextSteps('${d.id}')">Speichern</button>
           </div>
         ` : s.key === 'meeting' ? `
           <p style="font-size:13px;color:var(--gray-text);margin-bottom:16px;">Exportiere den Stand als Meeting-Vorbereitung.</p>
@@ -585,12 +589,14 @@ function viewDetail() {
             <button class="btn-ghost" onclick="exportMd('${d.id}')" title="Ergebnis als Markdown-Datei herunterladen">Ergebnis exportieren</button>
             <button class="btn-ghost" onclick="reopenRound('${d.id}')" title="Abstimmung wieder öffnen – bestehende Stimmen bleiben erhalten">Abstimmung wieder eröffnen</button>
           </div>
-          <div class="next-steps-form">
-            <h4>Nächste Schritte</h4>
-            <textarea id="ns-text" placeholder="Was passiert als nächstes? z.B. Meeting am…, wer bereitet es vor?">${esc(d.nextSteps || '')}</textarea>
-            <label style="margin-top:-8px;">Link zur Dokumentation (optional)</label>
+          <div class="next-steps-form${!d.nextSteps ? ' ns-fresh' : ''}">
+            <h4>${!d.nextSteps ? 'Wie geht es weiter?' : 'Nächste Schritte'}</h4>
+            <textarea id="ns-text" placeholder="Was passiert als nächstes? z.B. Meeting am…, wer organisiert?">${esc(d.nextSteps || '')}</textarea>
+            <label>Verantwortlich (optional)</label>
+            <input type="text" id="ns-responsible" placeholder="Name der verantwortlichen Person" value="${esc(d.responsible || '')}">
+            <label>Dokumentations-Link (optional)</label>
             <input type="text" id="ns-link" placeholder="https://…" value="${esc(d.docsLink || '')}">
-            <button class="btn-ghost" onclick="saveNextSteps('${d.id}')">Speichern</button>
+            <button class="${!d.nextSteps ? 'btn-primary' : 'btn-ghost'}" onclick="saveNextSteps('${d.id}')">Speichern</button>
           </div>
         ` : ''}
       </div>
@@ -735,6 +741,13 @@ function closeRound(id) {
   r.closed = true;
   save(d);
   render();
+  const newStatus = status(d).key;
+  if (newStatus === 'done' || newStatus === 'meeting') {
+    setTimeout(() => {
+      const el = document.getElementById('ns-text');
+      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }
+    }, 80);
+  }
 }
 
 function reopenRound(id) {
@@ -755,8 +768,9 @@ function startRound2(id) {
 
 function saveNextSteps(id) {
   const d = state.decisions.find(d => d.id === id);
-  d.nextSteps = val('ns-text');
-  d.docsLink  = val('ns-link');
+  d.nextSteps   = val('ns-text');
+  d.responsible = val('ns-responsible');
+  d.docsLink    = val('ns-link');
   save(d);
   render();
 }
@@ -793,7 +807,8 @@ function exportMd(id) {
 
   if (d.nextSteps) {
     md += `\n## Nächste Schritte\n${d.nextSteps}\n`;
-    if (d.docsLink) md += `\n[Dokumentation](${d.docsLink})\n`;
+    if (d.responsible) md += `\n**Verantwortlich:** ${d.responsible}\n`;
+    if (d.docsLink)    md += `\n[Dokumentation](${d.docsLink})\n`;
   }
 
   const a = Object.assign(document.createElement('a'), {
