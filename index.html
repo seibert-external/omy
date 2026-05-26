@@ -291,7 +291,7 @@ function viewHome() {
           return `<div class="d-item" onclick="go('detail','${d.id}')">
             <div>
               <h3>${esc(d.title)}</h3>
-              <div class="d-meta">${r.votes.length} Stimmen · Runde ${r.num}${d.deadline ? ' · bis ' + d.deadline : ''}</div>
+              <div class="d-meta">${new Date(d.createdAt).toLocaleDateString('de-DE')} · ${esc(d.createdBy || '–')} · ${r.votes.length} Stimmen · Runde ${r.num}${d.deadline ? ' · bis ' + d.deadline : ''}</div>
             </div>
             <span class="badge badge-${s.key}">${s.label}</span>
           </div>`;
@@ -372,10 +372,7 @@ function viewDetail() {
       ${!r.closed ? `
         <div class="row">
           <button class="btn-primary" onclick="go('vote','${d.id}')">Als Teilnehmer*in abstimmen</button>
-        </div>` : `
-        <div class="row">
-          ${(s.key === 'done' || s.key === 'meeting') ? `<button class="btn-ghost" onclick="exportMd('${d.id}')">Markdown exportieren</button>` : ''}
-        </div>`
+        </div>` : ''
       }
 
       <!-- Moderator-Bereich -->
@@ -399,12 +396,19 @@ function viewDetail() {
             <textarea id="r2-proposal" style="min-height:120px;">${esc(r.proposal)}</textarea>
             <button class="btn-primary" onclick="startRound2('${d.id}')">Runde 2 starten</button>
           </div>
+          <button class="btn-ghost" style="margin-top:10px;" onclick="reopenRound('${d.id}')">Abstimmung wieder eröffnen</button>
         ` : s.key === 'done' ? `
-          <p style="font-size:13px;color:#15803D;">Entscheidung ist gefallen. Du kannst sie als Markdown exportieren.</p>
-          <button class="btn-ghost" onclick="exportMd('${d.id}')">Markdown exportieren</button>
+          <p style="font-size:13px;color:#15803D;margin-bottom:16px;">Entscheidung ist gefallen.</p>
+          <div class="row">
+            <button class="btn-ghost" onclick="exportMd('${d.id}')">Ergebnis exportieren</button>
+            <button class="btn-ghost" onclick="reopenRound('${d.id}')">Abstimmung wieder eröffnen</button>
+          </div>
         ` : s.key === 'meeting' ? `
           <p style="font-size:13px;color:var(--gray-text);margin-bottom:16px;">Exportiere den Stand als Meeting-Vorbereitung.</p>
-          <button class="btn-ghost" onclick="exportMd('${d.id}')">Markdown exportieren</button>
+          <div class="row">
+            <button class="btn-ghost" onclick="exportMd('${d.id}')">Ergebnis exportieren</button>
+            <button class="btn-ghost" onclick="reopenRound('${d.id}')">Abstimmung wieder eröffnen</button>
+          </div>
         ` : ''}
       </div>
     </div>
@@ -531,7 +535,26 @@ function closeRound(id) {
   const d = state.decisions.find(d => d.id === id);
   const r = activeRound(d);
   if (r.votes.length === 0 && !confirm('Noch keine Stimmen vorhanden. Trotzdem schließen?')) return;
+
+  // Runde 2: check if all R1 voters have voted
+  if (r.num === 2 && d.rounds.length >= 2) {
+    const r1voters = d.rounds[0].votes.map(v => v.voter);
+    const r2voters = r.votes.map(v => v.voter);
+    const missing  = r1voters.filter(n => !r2voters.includes(n));
+    if (missing.length > 0) {
+      const names = missing.join(', ');
+      if (!confirm(`${missing.length} Person${missing.length > 1 ? 'en' : ''} aus Runde 1 ${missing.length > 1 ? 'haben' : 'hat'} noch nicht abgestimmt: ${names}.\n\nTrotzdem schließen?`)) return;
+    }
+  }
+
   r.closed = true;
+  save();
+  render();
+}
+
+function reopenRound(id) {
+  const d = state.decisions.find(d => d.id === id);
+  activeRound(d).closed = false;
   save();
   render();
 }
@@ -565,10 +588,15 @@ function exportMd(id) {
     md += '\n';
   });
 
+  const finalRound = activeRound(d);
   md += `## Ergebnis\n`;
-  md += s.key === 'done'
-    ? `✓ Entscheidung async getroffen. Alle Widerstände ≤ 3.\n`
-    : `⚠ Synchrones Meeting empfohlen. Mindestens ein Widerstand > 3 nach Runde ${activeRound(d).num}.\n`;
+  if (s.key === 'done') {
+    md += `✓ Entscheidung async getroffen. Alle Widerstände ≤ 3.\n\n`;
+    md += `**Getroffene Entscheidung:**\n> ${finalRound.proposal.replace(/\n/g, '\n> ')}\n`;
+  } else {
+    md += `⚠ Synchrones Meeting empfohlen. Mindestens ein Widerstand > 3 nach Runde ${finalRound.num}.\n\n`;
+    md += `**Letzter Vorschlag (Grundlage für das Meeting):**\n> ${finalRound.proposal.replace(/\n/g, '\n> ')}\n`;
+  }
 
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(new Blob([md], { type: 'text/markdown' })),
