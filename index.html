@@ -251,27 +251,60 @@
 const R_LABELS = ['kein', 'gering', 'leicht erhöht', 'erhöht', 'stark', 'extrem'];
 
 // ── State ────────────────────────────────────────────────────────
+const SCRIPT_URL = 'https://script.google.com/a/macros/seibert.group/s/AKfycbyNMQDcZozcZMhcBDJK1XGLr0Q3OIwOtDcChNeiAcrGfZ9Lv8yI57ShV4lJ4Z_w_Ge1/exec';
+
 const state = {
   view: 'home',
   currentId: null,
   voterName: localStorage.getItem('konsent_voter') || '',
-  decisions: []
+  decisions: [],
+  loading: true
 };
 let selectedR = null;
 let archiveOpen = false;
 
-// Load + migrate old data format
-(function loadData() {
-  const raw = JSON.parse(localStorage.getItem('konsent_data') || '[]');
-  state.decisions = raw.map(d => {
-    if (d.votes && !d.rounds) {
-      return { ...d, createdBy: d.createdBy || '', rounds: [{ num: 1, proposal: d.proposal, votes: d.votes, closed: false }] };
-    }
-    return d;
-  });
-})();
+function migrate(d) {
+  if (d.votes && !d.rounds) {
+    return { ...d, createdBy: d.createdBy || '', rounds: [{ num: 1, proposal: d.proposal, votes: d.votes, closed: false }] };
+  }
+  return d;
+}
 
-function save() { localStorage.setItem('konsent_data', JSON.stringify(state.decisions)); }
+async function loadData() {
+  state.loading = true;
+  try {
+    const res = await fetch(SCRIPT_URL, { credentials: 'include' });
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      state.decisions = data.map(migrate);
+      localStorage.setItem('konsent_data', JSON.stringify(state.decisions));
+      state.loading = false;
+      return;
+    }
+  } catch(e) {}
+  // Sheets leer oder nicht erreichbar: localStorage nutzen
+  const raw = JSON.parse(localStorage.getItem('konsent_data') || '[]');
+  state.decisions = raw.map(migrate);
+  // Lokale Daten zu Sheets migrieren, falls vorhanden
+  if (state.decisions.length > 0) {
+    state.decisions.forEach(d => syncToSheets(d));
+  }
+  state.loading = false;
+}
+
+function syncToSheets(d) {
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    credentials: 'include',
+    body: JSON.stringify(d)
+  }).catch(() => {});
+}
+
+function save(modifiedDecision) {
+  localStorage.setItem('konsent_data', JSON.stringify(state.decisions));
+  if (modifiedDecision) syncToSheets(modifiedDecision);
+}
 function go(view, id = null) { state.view = view; state.currentId = id; selectedR = null; render(); window.scrollTo(0, 0); }
 function current() { return state.decisions.find(d => d.id === state.currentId); }
 function activeRound(d) { return d.rounds[d.rounds.length - 1]; }
@@ -328,7 +361,10 @@ function viewHome() {
         <h2 style="font-size:22px;font-weight:600;">Entscheidungen</h2>
         <p style="font-size:13px;color:var(--gray-text);margin-top:3px;">Konsent-basiert · Async · Safe Enough to Try</p>
       </div>
-      <button class="btn-primary" onclick="go('create')">+ Neue Entscheidung</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-ghost" onclick="refresh()" title="Aktualisieren" style="padding:10px 14px;">↻</button>
+        <button class="btn-primary" onclick="go('create')">+ Neue Entscheidung</button>
+      </div>
     </div>
     ${state.decisions.length === 0
       ? `<div class="card"><div class="empty">
@@ -576,7 +612,7 @@ function createDecision() {
     createdAt: new Date().toISOString()
   };
   state.decisions.unshift(d);
-  save();
+  save(d);
   go('detail', d.id);
 }
 
@@ -598,7 +634,7 @@ function submitVote(id) {
   const r = activeRound(d);
   r.votes = r.votes.filter(v => v.voter !== name);
   r.votes.push({ voter: name, value: selectedR, comment });
-  save();
+  save(d);
   go('detail', id);
 }
 
@@ -619,14 +655,14 @@ function closeRound(id) {
   }
 
   r.closed = true;
-  save();
+  save(d);
   render();
 }
 
 function reopenRound(id) {
   const d = state.decisions.find(d => d.id === id);
   activeRound(d).closed = false;
-  save();
+  save(d);
   render();
 }
 
@@ -635,7 +671,7 @@ function startRound2(id) {
   if (!proposal) { alert('Bitte einen überarbeiteten Vorschlag eingeben.'); return; }
   const d = state.decisions.find(d => d.id === id);
   d.rounds.push({ num: 2, proposal, votes: [], closed: false });
-  save();
+  save(d);
   go('detail', id);
 }
 
@@ -643,7 +679,7 @@ function saveNextSteps(id) {
   const d = state.decisions.find(d => d.id === id);
   d.nextSteps = val('ns-text');
   d.docsLink  = val('ns-link');
-  save();
+  save(d);
   render();
 }
 
@@ -701,13 +737,22 @@ function toggleArchive() {
   if (list)   list.style.display = archiveOpen ? 'block' : 'none';
 }
 
+async function refresh() {
+  await loadData();
+  render();
+}
+
 // ── Render ────────────────────────────────────────────────────────
 function render() {
+  if (state.loading) {
+    document.getElementById('app').innerHTML = '<div style="text-align:center;padding:80px 24px;color:var(--gray-text);font-size:14px;">Daten werden geladen…</div>';
+    return;
+  }
   const views = { home: viewHome, create: viewCreate, detail: viewDetail, vote: viewVote };
   document.getElementById('app').innerHTML = (views[state.view] || viewHome)();
 }
 
-render();
+loadData().then(() => render());
 </script>
 </body>
 </html>
