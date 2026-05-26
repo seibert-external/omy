@@ -210,6 +210,31 @@
     .empty h3 { font-size: 16px; color: var(--dark); margin-bottom: 6px; }
     .empty p  { font-size: 13px; max-width: 320px; margin: 0 auto; }
     .hint { font-size: 12px; color: var(--gray-text); margin-top: -12px; margin-bottom: 20px; }
+
+    /* Meta chips in list */
+    .meta-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .chip { font-size: 11px; color: var(--gray-text); background: var(--gray-bg); padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+    .chip strong { color: var(--dark); font-weight: 600; }
+
+    /* Archive toggle */
+    .archive-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0; cursor: pointer; border-top: 1px solid var(--gray-border); margin-top: 8px;
+    }
+    .archive-header span { font-size: 13px; font-weight: 500; color: var(--gray-text); }
+    .archive-header .chevron { font-size: 12px; color: var(--gray-text); transition: transform 0.2s; }
+    .archive-header.open .chevron { transform: rotate(180deg); }
+
+    /* Next steps box */
+    .next-steps-box {
+      background: #F0FDF4; border: 1.5px solid #BBF7D0;
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 16px;
+    }
+    .next-steps-box .ns-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #15803D; margin-bottom: 6px; }
+    .next-steps-box p { font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: var(--dark); }
+    .next-steps-box a { font-size: 13px; color: #15803D; word-break: break-all; }
+    .next-steps-form { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-border); }
+    .next-steps-form h4 { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
   </style>
 </head>
 <body>
@@ -233,6 +258,7 @@ const state = {
   decisions: []
 };
 let selectedR = null;
+let archiveOpen = false;
 
 // Load + migrate old data format
 (function loadData() {
@@ -269,8 +295,33 @@ function status(d) {
 }
 
 // ── Views ────────────────────────────────────────────────────────
+function renderDecisionItem(d) {
+  const s = status(d);
+  const r = activeRound(d);
+  return `<div class="d-item" onclick="go('detail','${d.id}')">
+    <div style="flex:1;min-width:0;">
+      <h3>${esc(d.title)}</h3>
+      <div class="meta-chips">
+        <span class="chip"><strong>Moderation:</strong> ${esc(d.createdBy || '–')}</span>
+        <span class="chip"><strong>Erstellt:</strong> ${new Date(d.createdAt).toLocaleDateString('de-DE')}</span>
+        ${d.deadline ? `<span class="chip"><strong>Deadline:</strong> ${new Date(d.deadline + 'T00:00:00').toLocaleDateString('de-DE')}</span>` : ''}
+        <span class="chip"><strong>Stimmen:</strong> ${r.votes.length}</span>
+        <span class="chip"><strong>Runde:</strong> ${r.num}</span>
+      </div>
+    </div>
+    <span class="badge badge-${s.key}">${s.label}</span>
+  </div>`;
+}
+
 function viewHome() {
-  const ds = state.decisions;
+  const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const recent  = state.decisions.filter(d => now - new Date(d.createdAt) <= THREE_DAYS);
+  const archive = state.decisions.filter(d => now - new Date(d.createdAt) > THREE_DAYS);
+  const archiveLabel = archive.length === 1
+    ? 'Archiv (1 ältere Entscheidung)'
+    : `Archiv (${archive.length} ältere Entscheidungen)`;
+
   return `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
       <div>
@@ -279,23 +330,22 @@ function viewHome() {
       </div>
       <button class="btn-primary" onclick="go('create')">+ Neue Entscheidung</button>
     </div>
-    ${ds.length === 0
+    ${state.decisions.length === 0
       ? `<div class="card"><div class="empty">
            <div class="icon">⚡</div>
            <h3>Noch keine Entscheidungen</h3>
            <p>Erstelle deine erste Entscheidung und lade dein Team ein, async abzustimmen.</p>
          </div></div>`
-      : ds.map(d => {
-          const s = status(d);
-          const r = activeRound(d);
-          return `<div class="d-item" onclick="go('detail','${d.id}')">
-            <div>
-              <h3>${esc(d.title)}</h3>
-              <div class="d-meta">${new Date(d.createdAt).toLocaleDateString('de-DE')} · ${esc(d.createdBy || '–')} · ${r.votes.length} Stimmen · Runde ${r.num}${d.deadline ? ' · bis ' + d.deadline : ''}</div>
-            </div>
-            <span class="badge badge-${s.key}">${s.label}</span>
-          </div>`;
-        }).join('')
+      : `${recent.map(renderDecisionItem).join('')}
+         ${archive.length > 0 ? `
+           <div id="archive-header" class="archive-header${archiveOpen ? ' open' : ''}" onclick="toggleArchive()">
+             <span>${archiveLabel}</span>
+             <span class="chevron">▼</span>
+           </div>
+           <div id="archive-list" style="display:${archiveOpen ? 'block' : 'none'};">
+             ${archive.map(renderDecisionItem).join('')}
+           </div>` : ''}
+      `
     }`;
 }
 
@@ -354,6 +404,13 @@ function viewDetail() {
         <p>${blockers.length > 0 ? `${blockers.length} Widerstand${blockers.length > 1 ? 'e' : ''} > 3.` : ''} ${withComments.length > 0 ? `${withComments.length} Person${withComments.length > 1 ? 'en haben' : ' hat'} Einwände oder Verbesserungen eingebracht.` : ''} Überarbeite den Vorschlag und starte Runde 2.</p>
       </div>` : ''}
 
+    ${d.nextSteps ? `
+      <div class="next-steps-box">
+        <div class="ns-label">Nächste Schritte</div>
+        <p>${esc(d.nextSteps)}</p>
+        ${d.docsLink ? `<a href="${esc(d.docsLink)}" target="_blank" rel="noopener">📎 Dokumentation öffnen</a>` : ''}
+      </div>` : ''}
+
     <div class="card">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
         <div style="flex:1;">
@@ -403,11 +460,25 @@ function viewDetail() {
             <button class="btn-ghost" onclick="exportMd('${d.id}')">Ergebnis exportieren</button>
             <button class="btn-ghost" onclick="reopenRound('${d.id}')">Abstimmung wieder eröffnen</button>
           </div>
+          <div class="next-steps-form">
+            <h4>Nächste Schritte</h4>
+            <textarea id="ns-text" placeholder="Was passiert als nächstes? z.B. Entscheidung umsetzen, wer ist verantwortlich…">${esc(d.nextSteps || '')}</textarea>
+            <label style="margin-top:-8px;">Link zur Dokumentation (optional)</label>
+            <input type="text" id="ns-link" placeholder="https://…" value="${esc(d.docsLink || '')}">
+            <button class="btn-ghost" onclick="saveNextSteps('${d.id}')">Speichern</button>
+          </div>
         ` : s.key === 'meeting' ? `
           <p style="font-size:13px;color:var(--gray-text);margin-bottom:16px;">Exportiere den Stand als Meeting-Vorbereitung.</p>
           <div class="row">
             <button class="btn-ghost" onclick="exportMd('${d.id}')">Ergebnis exportieren</button>
             <button class="btn-ghost" onclick="reopenRound('${d.id}')">Abstimmung wieder eröffnen</button>
+          </div>
+          <div class="next-steps-form">
+            <h4>Nächste Schritte</h4>
+            <textarea id="ns-text" placeholder="Was passiert als nächstes? z.B. Meeting am…, wer bereitet es vor?">${esc(d.nextSteps || '')}</textarea>
+            <label style="margin-top:-8px;">Link zur Dokumentation (optional)</label>
+            <input type="text" id="ns-link" placeholder="https://…" value="${esc(d.docsLink || '')}">
+            <button class="btn-ghost" onclick="saveNextSteps('${d.id}')">Speichern</button>
           </div>
         ` : ''}
       </div>
@@ -568,6 +639,14 @@ function startRound2(id) {
   go('detail', id);
 }
 
+function saveNextSteps(id) {
+  const d = state.decisions.find(d => d.id === id);
+  d.nextSteps = val('ns-text');
+  d.docsLink  = val('ns-link');
+  save();
+  render();
+}
+
 function exportMd(id) {
   const d  = state.decisions.find(d => d.id === id);
   const s  = status(d);
@@ -598,6 +677,11 @@ function exportMd(id) {
     md += `**Letzter Vorschlag (Grundlage für das Meeting):**\n> ${finalRound.proposal.replace(/\n/g, '\n> ')}\n`;
   }
 
+  if (d.nextSteps) {
+    md += `\n## Nächste Schritte\n${d.nextSteps}\n`;
+    if (d.docsLink) md += `\n[Dokumentation](${d.docsLink})\n`;
+  }
+
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(new Blob([md], { type: 'text/markdown' })),
     download: `konsent-${d.title.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')}.md`
@@ -608,6 +692,14 @@ function exportMd(id) {
 // ── Utils ────────────────────────────────────────────────────────
 function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function toggleArchive() {
+  archiveOpen = !archiveOpen;
+  const header = document.getElementById('archive-header');
+  const list   = document.getElementById('archive-list');
+  if (header) header.classList.toggle('open', archiveOpen);
+  if (list)   list.style.display = archiveOpen ? 'block' : 'none';
+}
 
 // ── Render ────────────────────────────────────────────────────────
 function render() {
