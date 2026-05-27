@@ -393,7 +393,7 @@ function renderDecisionItem(d) {
     <div style="flex:1;min-width:0;">
       <h3>${esc(d.title)}</h3>
       <div class="meta-chips">
-        <span class="chip"><strong>Moderation:</strong> ${esc(d.createdBy || '–')}</span>
+        <span class="chip"><strong>Erstellt von:</strong> ${esc(d.createdBy || '–')}</span>
         <span class="chip"><strong>Erstellt:</strong> ${new Date(d.createdAt).toLocaleDateString('de-DE')}</span>
         ${d.deadline ? `<span class="chip"><strong>Deadline:</strong> ${new Date(d.deadline + 'T00:00:00').toLocaleDateString('de-DE')}</span>` : ''}
         <span class="chip"><strong>Stimmen:</strong> ${r.votes.length}</span>
@@ -414,7 +414,7 @@ function viewHome() {
   return `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
       <div>
-        <h2 style="font-size:22px;font-weight:600;"><span style="color:var(--lime);">Ω</span>my</h2>
+        <h2 style="font-size:22px;font-weight:600;cursor:pointer;" onclick="go('home')"><span style="color:var(--lime);">Ω</span>my</h2>
         <p style="font-size:13px;color:var(--gray-text);margin-top:3px;">Entscheidungen per Widerstandsabfrage asynchron treffen.</p>
       </div>
       <div style="display:flex;gap:8px;">
@@ -444,9 +444,9 @@ function viewHome() {
         </div>
         <h4>Ablauf</h4>
         <ol>
-          <li><strong>Moderator*in</strong> legt Titel, Spannung und Vorschlag an – teilt die Seite</li>
+          <li><strong>Erstellt von</strong> legt Titel, Spannung und Vorschlag an – teilt die Seite</li>
           <li><strong>Alle Beteiligten</strong> öffnen die Entscheidung und wählen ihren Widerstand (0–5), optional mit Einwand</li>
-          <li><strong>Moderator*in</strong> schließt die Runde und wertet aus</li>
+          <li><strong>Erstellt von</strong> schließt die Runde und wertet aus</li>
         </ol>
         <h4>Widerstandsskala</h4>
         <div class="help-scale">
@@ -502,7 +502,7 @@ function viewCreate() {
       <h2>Neue Entscheidung</h2>
       <p>Der Vorschlag sollte bereits ausgearbeitet sein – das Tool unterstützt die Abstimmung, nicht die Ausarbeitung.</p>
 
-      <label>Dein Name (als Moderator*in) *</label>
+      <label>Dein Name (als Erstellt von) *</label>
       <input type="text" id="f-mod" placeholder="Dein Name">
 
       <label>Titel der Entscheidung *</label>
@@ -569,6 +569,7 @@ function viewDetail() {
         <span class="round-pill">Runde ${r.num}</span>
       </div>
 
+      ${d.createdBy ? `<p style="font-size:12px;color:var(--gray-text);margin-bottom:18px;">Erstellt von: ${esc(d.createdBy)}</p>` : ''}
       <div class="section-label">Spannung</div>
       <p style="font-size:14px;line-height:1.7;color:var(--gray-text);margin-bottom:22px;">${esc(d.tension)}</p>
 
@@ -583,7 +584,7 @@ function viewDetail() {
 
       <!-- Moderator-Bereich -->
       <div class="mod-section">
-        <div class="mod-label">Moderator*in</div>
+        <div class="mod-label">Erstellt von</div>
         ${!r.closed ? `
           <p style="font-size:13px;color:var(--gray-text);margin-bottom:16px;">
             ${r.votes.length === 0
@@ -815,7 +816,7 @@ function exportMd(id) {
   const s  = status(d);
   const dt = new Date().toLocaleDateString('de-DE');
   let md = `# Ωmy: ${d.title}\n\n`;
-  md += `**Datum:** ${dt}  \n**Status:** ${s.label}  \n**Moderator*in:** ${d.createdBy || '–'}\n\n`;
+  md += `**Datum:** ${dt}  \n**Status:** ${s.label}  \n**Erstellt von:** ${d.createdBy || '–'}\n\n`;
   md += `## Spannung\n${d.tension}\n\n`;
 
   d.rounds.forEach(r => {
@@ -895,7 +896,7 @@ loadData().then(() => {
 });
 </script>
 <footer style="text-align:center;padding:24px 16px 20px;font-size:11px;color:#6B7280;">
-  Ωmy · v2026-05-27 · Feedback? Gerne! <a href="https://seibert.link/feedback-coe-fl" target="_blank" style="color:#6B7280;">seibert.link/feedback-coe-fl</a>
+  Ωmy · v2026-05-27 · Feedback? Gerne: <a href="https://seibert.link/feedback-coe-fl" target="_blank" style="color:#6B7280;">seibert.link/feedback-coe-fl</a>
 </footer>
 </body>
 </html>
