@@ -410,6 +410,9 @@ function viewHome() {
         <button class="btn-primary" onclick="go('create')">+ Neue Entscheidung</button>
       </div>
     </div>
+    <div style="background:#FEF9C3;border:1.5px solid #FDE047;border-radius:var(--radius);padding:11px 16px;margin-bottom:16px;font-size:13px;color:#713F12;">
+      ⚠ <strong>Testversion:</strong> Diese App befindet sich in der Erprobungsphase. Alle eingegebenen Daten sind öffentlich einsehbar. Bitte <strong>keine sensiblen oder vertraulichen Informationen</strong> eingeben.
+    </div>
     ${state.sheetError ? `
     <div class="sheet-error-banner">
       <span>⚠ Sheet nicht erreichbar – lokale Daten werden angezeigt. Bitte einloggen und erneut versuchen.</span>
