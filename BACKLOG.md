@@ -24,6 +24,9 @@ E-Mail oder Google Chat Notification wenn neue Abstimmung gestartet wird.
 ### Mehr als 2 Runden
 Aktuell: max. Runde 2 → Meeting. Ggf. konfigurierbar machen.
 
+### Apps Script LockService (serverseitiger Schreibschutz)
+Aktuell wird Race Condition beim gleichzeitigen Schreiben clientseitig per Debounce abgefangen. Für Weg B (oder bei echtem Mehrbenutzerbetrieb) sollte `doPost()` im Apps Script mit `LockService.getScriptLock()` abgesichert werden, damit parallele Schreibvorgänge serialisiert werden und keine Duplikat-Zeilen entstehen.
+
 ### Rollenkonzept
 Klare Trennung von Rollen mit unterschiedlichen Rechten:
 - **Ersteller*in** – legt Entscheidung an
