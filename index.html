@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ωmy – Async Konsent-Entscheidungen</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23010920'/><text x='50' y='76' text-anchor='middle' font-size='72' fill='%23BEE600' font-family='serif'>Ω</text></svg>">
   <style>
     :root {
       --lime: #BEE600;
@@ -257,6 +258,11 @@
     .dict-hw { font-weight: 700; font-size: 15px; }
     .dict-phon { color: var(--gray-text); font-size: 12px; margin-left: 3px; }
     .dict-sub { display: block; font-size: 12px; color: var(--gray-text); margin-top: 4px; }
+    .help-result-table { border-collapse: collapse; width: 100%; font-size: 13px; margin: 6px 0; }
+    .help-result-table td { padding: 4px 6px; vertical-align: top; line-height: 1.5; }
+    .help-result-table td:first-child { color: var(--gray-text); white-space: nowrap; padding-right: 8px; }
+    .help-result-table td:nth-child(2) { color: var(--gray-text); padding: 4px 4px; }
+    .sheet-error-banner { background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: var(--radius); padding: 11px 16px; margin-bottom: 16px; font-size: 13px; color: #991B1B; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   </style>
 </head>
 <body>
@@ -295,7 +301,8 @@ const state = {
   currentId: null,
   voterName: localStorage.getItem('konsent_voter') || '',
   decisions: [],
-  loading: true
+  loading: true,
+  sheetError: false
 };
 let selectedR = null;
 let archiveOpen = false;
@@ -310,8 +317,9 @@ function migrate(d) {
 
 async function loadData() {
   state.loading = true;
+  state.sheetError = false;
   try {
-    const res = await fetch(SCRIPT_URL, { credentials: 'include' });
+    const res = await fetch(SCRIPT_URL);
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {
       state.decisions = data.map(migrate);
@@ -319,7 +327,10 @@ async function loadData() {
       state.loading = false;
       return;
     }
-  } catch(e) {}
+  } catch(e) {
+    console.error('Ωmy: Sheet nicht erreichbar –', e);
+    state.sheetError = true;
+  }
   // Sheets leer oder nicht erreichbar: localStorage nutzen
   const raw = JSON.parse(localStorage.getItem('konsent_data') || '[]');
   state.decisions = raw.map(migrate);
@@ -402,6 +413,11 @@ function viewHome() {
         <button class="btn-primary" onclick="go('create')">+ Neue Entscheidung</button>
       </div>
     </div>
+    ${state.sheetError ? `
+    <div class="sheet-error-banner">
+      <span>⚠ Sheet nicht erreichbar – lokale Daten werden angezeigt. Bitte einloggen und erneut versuchen.</span>
+      <button class="btn-ghost" onclick="refresh()" style="font-size:12px;padding:6px 12px;flex-shrink:0;">Erneut versuchen</button>
+    </div>` : ''}
     <div class="help-panel">
       <div id="help-hdr" class="help-header${helpOpen ? ' open' : ''}" onclick="toggleHelp()">
         <span style="color:var(--lime);font-weight:700;font-size:14px;">?</span>
@@ -412,26 +428,30 @@ function viewHome() {
         <div class="dict-entry">
           <span class="dict-hw">Ohm</span><span class="dict-phon">[oːm]</span>, <em style="font-size:12px;color:var(--gray-text);">das</em>
           &nbsp;—&nbsp; SI-Einheit des elektrischen <strong>Widerstands</strong>. Symbol: <strong>Ω</strong>. Benannt nach Georg Simon Ohm (1789–1854).
-          <span class="dict-sub">↳ Hier: Maß dafür, wie groß der Widerstand gegen einen Entscheidungsvorschlag ist – von 0 (kein) bis 5 (extrem).</span>
+          <span class="dict-sub">↳ Hier: Maß für den Widerstand gegen einen Vorschlag – von 0 (kein) bis 5 (extrem). Konsent = kein schwerwiegender Einwand, nicht Konsens.</span>
         </div>
-        <p>Ωmy unterstützt asynchrone Entscheidungen nach dem Konsent-Prinzip. Voraussetzung: Ein ausgearbeiteter Vorschlag liegt vor.</p>
         <h4>Ablauf</h4>
         <ol>
-          <li><strong>Moderator*in</strong> legt Titel, Spannung und Vorschlag an und teilt die Seite</li>
-          <li><strong>Alle Beteiligten</strong> öffnen die Entscheidung, wählen ihren Widerstand (0–5) und können optional einen Einwand schreiben</li>
-          <li><strong>Moderator*in</strong> schließt die Abstimmung und wertet aus</li>
+          <li><strong>Moderator*in</strong> legt Titel, Spannung und Vorschlag an – teilt die Seite</li>
+          <li><strong>Alle Beteiligten</strong> öffnen die Entscheidung und wählen ihren Widerstand (0–5), optional mit Einwand</li>
+          <li><strong>Moderator*in</strong> schließt die Runde und wertet aus</li>
         </ol>
         <h4>Widerstandsskala</h4>
         <div class="help-scale">
-          <span>0 – kein</span><span>1 – gering</span><span>2 – leicht erhöht</span><span>3 – erhöht</span><span>4 – stark</span><span>5 – extrem</span>
+          <span style="color:#16A34A;">0 – kein</span>
+          <span style="color:#65A30D;">1 – gering</span>
+          <span style="color:#CA8A04;">2 – leicht erhöht</span>
+          <span style="color:#EA580C;">3 – erhöht</span>
+          <span style="color:#DC2626;">4 – stark</span>
+          <span style="color:#7F1D1D;">5 – extrem</span>
         </div>
         <h4>Ergebnis</h4>
-        <ul>
-          <li>Alle ≤ 3 → <strong>Entscheidung gefallen</strong> – kein Meeting nötig</li>
-          <li>Jemand > 3 oder Einwand geschrieben → <strong>Runde 2</strong> – Vorschlag wird überarbeitet, dann erneut abgestimmt</li>
-          <li>Nach Runde 2 noch > 3 → <strong>Meeting</strong> – synchrone Klärung ist nötig</li>
-        </ul>
-        <p class="help-sett"><strong style="color:var(--dark);">Safe Enough to Try:</strong> Es geht nicht um den perfekten Vorschlag – sondern um den nächsten Schritt, der sicher genug ist zum Ausprobieren.</p>
+        <table class="help-result-table">
+          <tr><td>Alle ≤ 3</td><td>→</td><td><strong>Entschieden</strong> – kein Meeting nötig</td></tr>
+          <tr><td>Jemand > 3 oder Einwand</td><td>→</td><td><strong>Runde 2</strong> – Vorschlag überarbeiten, erneut abstimmen</td></tr>
+          <tr><td>Nach Runde 2 noch > 3</td><td>→</td><td><strong>Meeting</strong> – synchrone Klärung nötig</td></tr>
+        </table>
+        <p class="help-sett"><strong style="color:var(--dark);">Safe Enough to Try:</strong> Nicht der perfekte Vorschlag – sondern der nächste Schritt, der sicher genug ist zum Ausprobieren.</p>
       </div>
     </div>
 
