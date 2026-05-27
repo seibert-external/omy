@@ -23,3 +23,10 @@ E-Mail oder Google Chat Notification wenn neue Abstimmung gestartet wird.
 
 ### Mehr als 2 Runden
 Aktuell: max. Runde 2 → Meeting. Ggf. konfigurierbar machen.
+
+### Rollenkonzept
+Klare Trennung von Rollen mit unterschiedlichen Rechten:
+- **Ersteller*in** – legt Entscheidung an
+- **Moderator*in** – steuert den Prozess (Runden schließen/öffnen, Runde 2 starten)
+- **Abstimmer*in** – gibt Widerstand und Kommentar ab
+- Aktuell: alle Rollen sind offen, kein Zugriffsschutz zwischen ihnen
