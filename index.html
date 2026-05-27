@@ -351,7 +351,19 @@ function save(modifiedDecision) {
   localStorage.setItem('konsent_data', JSON.stringify(state.decisions));
   if (modifiedDecision) syncToSheets(modifiedDecision);
 }
-function go(view, id = null) { state.view = view; state.currentId = id; selectedR = null; render(); window.scrollTo(0, 0); }
+function go(view, id = null) {
+  state.view = view; state.currentId = id; selectedR = null;
+  if (view === 'detail' && id) history.replaceState(null, '', '?id=' + id);
+  else history.replaceState(null, '', location.pathname);
+  render(); window.scrollTo(0, 0);
+}
+function copyLink(id) {
+  const url = location.origin + location.pathname + '?id=' + id;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copy-link-btn');
+    if (btn) { btn.textContent = '✓ Kopiert!'; setTimeout(() => { btn.textContent = '🔗 Link kopieren'; }, 2000); }
+  });
+}
 function current() { return state.decisions.find(d => d.id === state.currentId); }
 function activeRound(d) { return d.rounds[d.rounds.length - 1]; }
 
@@ -519,7 +531,10 @@ function viewDetail() {
   const withComments = r.votes.filter(v => v.comment && v.comment.trim());
 
   return `
-    <button class="back-btn" onclick="go('home')">← Alle Entscheidungen</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <button class="back-btn" onclick="go('home')" style="margin-bottom:0;">← Alle Entscheidungen</button>
+      <button id="copy-link-btn" class="btn-ghost" style="font-size:12px;padding:6px 12px;" onclick="copyLink('${d.id}')">🔗 Link kopieren</button>
+    </div>
 
     ${s.key === 'done' ? `
       <div class="banner b-done">
@@ -873,7 +888,11 @@ function render() {
   document.getElementById('app').innerHTML = (views[state.view] || viewHome)();
 }
 
-loadData().then(() => render());
+loadData().then(() => {
+  const id = new URLSearchParams(location.search).get('id');
+  if (id && state.decisions.find(d => d.id === id)) go('detail', id);
+  else render();
+});
 </script>
 <footer style="text-align:center;padding:24px 16px 20px;font-size:11px;color:#6B7280;">
   Ωmy · v2026-05-27
