@@ -341,12 +341,12 @@ async function loadData() {
   state.loading = false;
 }
 
+const syncTimers = {};
 function syncToSheets(d) {
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    body: JSON.stringify(d)
-  }).catch(() => {});
+  clearTimeout(syncTimers[d.id]);
+  syncTimers[d.id] = setTimeout(() => {
+    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(d) }).catch(() => {});
+  }, 400);
 }
 
 function save(modifiedDecision) {
