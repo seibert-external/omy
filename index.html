@@ -677,7 +677,7 @@ function viewDetail() {
     ${d.rounds.length > 1 ? `
       <div class="card">
         <div class="section-label">Runde 1 – Archiv</div>
-        ${d.rounds[0].votes.map(v => `
+        ${[...d.rounds[0].votes].sort((a, b) => a.voter.localeCompare(b.voter, 'de')).map(v => `
           <div class="vote-row" style="opacity:0.7;${v.value > 3 ? 'background:#FEE2E2;border:1px solid #FECACA;' : ''}">
             <span class="v-name">${esc(v.voter)}</span>
             <div class="v-circle vc-${v.value}">${v.value}</div>
@@ -844,7 +844,7 @@ function exportMd(id) {
     md += `### Abstimmung (Widerstand 0–5)\n\n`;
     if (r.votes.length) {
       md += `| Person | Widerstand | Kommentar |\n|---|---|---|\n`;
-      r.votes.forEach(v => { md += `| ${v.voter} | ${v.value} – ${R_LABELS[v.value]} | ${v.comment || '–'} |\n`; });
+      [...r.votes].sort((a, b) => a.voter.localeCompare(b.voter, 'de')).forEach(v => { md += `| ${v.voter} | ${v.value} – ${R_LABELS[v.value]} | ${v.comment || '–'} |\n`; });
     } else {
       md += `_Keine Stimmen._\n`;
     }
