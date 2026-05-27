@@ -319,7 +319,7 @@ async function loadData() {
   state.loading = true;
   state.sheetError = false;
   try {
-    const res = await fetch(SCRIPT_URL, { credentials: 'include' });
+    const res = await fetch(SCRIPT_URL);
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {
       state.decisions = data.map(migrate);
