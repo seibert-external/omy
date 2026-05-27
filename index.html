@@ -324,7 +324,9 @@ async function loadData() {
     const data = await res.json();
     if (Array.isArray(data)) {
       // Sheet ist Quelle der Wahrheit – auch ein leeres Sheet überschreibt localStorage
-      state.decisions = data.map(migrate).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const byId = {};
+      data.map(migrate).forEach(d => { byId[d.id] = d; }); // bei Duplikaten letzte Version gewinnt
+      state.decisions = Object.values(byId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       localStorage.setItem('konsent_data', JSON.stringify(state.decisions));
       state.loading = false;
       return;
