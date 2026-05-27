@@ -302,7 +302,8 @@ const state = {
   voterName: localStorage.getItem('konsent_voter') || '',
   decisions: [],
   loading: true,
-  sheetError: false
+  sheetError: false,
+  filter: 'all'
 };
 let selectedR = null;
 let archiveOpen = false;
@@ -356,6 +357,7 @@ function go(view, id = null) {
   else history.replaceState(null, '', location.pathname);
   render(); window.scrollTo(0, 0);
 }
+function setFilter(f) { state.filter = f; render(); }
 function copyLink(id) {
   const url = location.origin + location.pathname + '?id=' + id;
   navigator.clipboard.writeText(url).then(() => {
@@ -393,7 +395,7 @@ function renderDecisionItem(d) {
       <h3>${esc(d.title)}</h3>
       <div class="meta-chips">
         <span class="chip"><strong>Erstellt von:</strong> ${esc(d.createdBy || '–')}</span>
-        <span class="chip"><strong>Erstellt:</strong> ${new Date(d.createdAt).toLocaleDateString('de-DE')}</span>
+        <span class="chip"><strong>Erstellungsdatum:</strong> ${new Date(d.createdAt).toLocaleDateString('de-DE')}</span>
         ${d.deadline ? `<span class="chip"><strong>Deadline:</strong> ${new Date(d.deadline + 'T00:00:00').toLocaleDateString('de-DE')}</span>` : ''}
         <span class="chip"><strong>Stimmen:</strong> ${r.votes.length}</span>
         <span class="chip"><strong>Runde:</strong> ${r.num}</span>
@@ -403,9 +405,20 @@ function renderDecisionItem(d) {
   </div>`;
 }
 
+const FILTER_KEYS = {
+  all:         null,
+  offen:       ['open','running'],
+  integration: ['integration'],
+  entschieden: ['done'],
+  meeting:     ['meeting']
+};
+const FILTER_LABELS = { all: 'Alle', offen: 'Offen', integration: 'In Integration', entschieden: 'Entschieden', meeting: 'Meeting nötig' };
+
 function viewHome() {
-  const active  = state.decisions.filter(d => ['open','running','integration'].includes(status(d).key));
-  const decided = state.decisions.filter(d => ['done','meeting'].includes(status(d).key));
+  const fKeys = FILTER_KEYS[state.filter];
+  const filtered = fKeys ? state.decisions.filter(d => fKeys.includes(status(d).key)) : state.decisions;
+  const active  = filtered.filter(d => ['open','running','integration'].includes(status(d).key));
+  const decided = filtered.filter(d => ['done','meeting'].includes(status(d).key));
   const shown   = decided.slice(0, 5);
   const archive = decided.slice(5);
   const archiveLabel = archive.length === 1 ? '1 weitere Entscheidung' : `${archive.length} weitere Entscheidungen`;
@@ -413,7 +426,7 @@ function viewHome() {
   return `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
       <div>
-        <h2 style="font-size:22px;font-weight:600;cursor:pointer;" onclick="go('home')"><span style="color:var(--lime);">Ω</span>my</h2>
+        <h2 style="font-size:22px;font-weight:600;"><span style="color:var(--lime);">Ω</span>my</h2>
         <p style="font-size:13px;color:var(--gray-text);margin-top:3px;">Entscheidungen per Widerstandsabfrage asynchron treffen.</p>
       </div>
       <div style="display:flex;gap:8px;">
@@ -423,6 +436,10 @@ function viewHome() {
     </div>
     <div style="background:#FEF9C3;border:1.5px solid #FDE047;border-radius:var(--radius);padding:11px 16px;margin-bottom:16px;font-size:13px;color:#713F12;">
       ⚠ <strong>Testversion:</strong> Diese App befindet sich in der Erprobungsphase. Alle eingegebenen Daten sind öffentlich einsehbar. Bitte <strong>keine sensiblen oder vertraulichen Informationen</strong> eingeben.
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+      ${Object.keys(FILTER_LABELS).map(k => `
+        <button onclick="setFilter('${k}')" style="padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid ${state.filter===k ? 'var(--dark)' : 'var(--border)'};background:${state.filter===k ? 'var(--dark)' : 'transparent'};color:${state.filter===k ? 'var(--white)' : 'var(--gray-text)'};">${FILTER_LABELS[k]}</button>`).join('')}
     </div>
     ${state.sheetError ? `
     <div class="sheet-error-banner">
@@ -568,7 +585,10 @@ function viewDetail() {
         <span class="round-pill">Runde ${r.num}</span>
       </div>
 
-      ${d.createdBy ? `<p style="font-size:13px;font-weight:600;margin-bottom:18px;">Erstellt von: <span style="color:var(--lime-dark,#8a9e00);">${esc(d.createdBy)}</span></p>` : ''}
+      <div style="background:var(--gray-bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:18px;font-size:13px;display:flex;gap:16px;flex-wrap:wrap;">
+        ${d.createdBy ? `<span><strong>Erstellt von:</strong> ${esc(d.createdBy)}</span>` : ''}
+        <span><strong>Erstellungsdatum:</strong> ${new Date(d.createdAt).toLocaleDateString('de-DE')}</span>
+      </div>
       <div class="section-label">Spannung</div>
       <p style="font-size:14px;line-height:1.7;color:var(--gray-text);margin-bottom:22px;">${esc(d.tension)}</p>
 
@@ -656,14 +676,13 @@ function viewDetail() {
       <div class="card">
         <div class="section-label">Runde 1 – Archiv</div>
         ${d.rounds[0].votes.map(v => `
-          <div class="vote-row" style="opacity:0.7;">
+          <div class="vote-row" style="opacity:0.7;${v.value > 3 ? 'background:#FEE2E2;border:1px solid #FECACA;' : ''}">
             <span class="v-name">${esc(v.voter)}</span>
             <div class="v-circle vc-${v.value}">${v.value}</div>
             <span class="v-comment">${esc(v.comment || '')}</span>
           </div>`).join('')}
       </div>` : ''}
 
-    <button class="back-btn" onclick="go('home')" style="margin-top:8px;">← Alle Entscheidungen</button>
   `;
 }
 
@@ -751,7 +770,7 @@ function submitVote(id) {
 
   const d = state.decisions.find(d => d.id === id);
   const r = activeRound(d);
-  r.votes = r.votes.filter(v => v.voter !== name);
+  r.votes = r.votes.filter(v => v.voter.toLowerCase() !== name.toLowerCase());
   r.votes.push({ voter: name, value: selectedR, comment });
   save(d);
   go('detail', id);
@@ -766,7 +785,7 @@ function closeRound(id) {
   if (r.num === 2 && d.rounds.length >= 2) {
     const r1voters = d.rounds[0].votes.map(v => v.voter);
     const r2voters = r.votes.map(v => v.voter);
-    const missing  = r1voters.filter(n => !r2voters.includes(n));
+    const missing  = r1voters.filter(n => !r2voters.some(m => m.toLowerCase() === n.toLowerCase()));
     if (missing.length > 0) {
       const names = missing.join(', ');
       if (!confirm(`${missing.length} Person${missing.length > 1 ? 'en' : ''} aus Runde 1 ${missing.length > 1 ? 'haben' : 'hat'} noch nicht abgestimmt: ${names}.\n\nTrotzdem schließen?`)) return;
