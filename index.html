@@ -462,9 +462,9 @@ function viewHome() {
         </div>
         <h4>Ablauf</h4>
         <ol>
-          <li><strong>Erstellt von</strong> legt Titel, Spannung und Vorschlag an – teilt die Seite</li>
-          <li><strong>Alle Beteiligten</strong> öffnen die Entscheidung und wählen ihren Widerstand (0–5), optional mit Einwand</li>
-          <li><strong>Erstellt von</strong> schließt die Runde und wertet aus</li>
+          <li><strong>Ersteller*in</strong> legt Titel, Spannung und Vorschlag an – kopiert den Direktlink und teilt ihn mit den Beteiligten</li>
+          <li><strong>Alle Beteiligten</strong> öffnen die Entscheidung über den Link und wählen ihren Widerstand (0–5), optional mit Einwand</li>
+          <li><strong>Moderator*in</strong> schließt die Runde und wertet aus</li>
         </ol>
         <h4>Widerstandsskala</h4>
         <div class="help-scale">
@@ -907,6 +907,7 @@ function render() {
   }
   const views = { home: viewHome, create: viewCreate, detail: viewDetail, vote: viewVote };
   document.getElementById('app').innerHTML = (views[state.view] || viewHome)();
+  if (state.view === 'vote') setTimeout(() => document.getElementById('v-name')?.focus(), 50);
 }
 
 loadData().then(() => {
