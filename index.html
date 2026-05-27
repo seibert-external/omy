@@ -321,7 +321,8 @@ async function loadData() {
   try {
     const res = await fetch(SCRIPT_URL);
     const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
+    if (Array.isArray(data)) {
+      // Sheet ist Quelle der Wahrheit – auch ein leeres Sheet überschreibt localStorage
       state.decisions = data.map(migrate);
       localStorage.setItem('konsent_data', JSON.stringify(state.decisions));
       state.loading = false;
@@ -330,13 +331,9 @@ async function loadData() {
   } catch(e) {
     console.error('Ωmy: Sheet nicht erreichbar –', e);
     state.sheetError = true;
-  }
-  // Sheets leer oder nicht erreichbar: localStorage nutzen
-  const raw = JSON.parse(localStorage.getItem('konsent_data') || '[]');
-  state.decisions = raw.map(migrate);
-  // Lokale Daten zu Sheets migrieren, falls vorhanden
-  if (state.decisions.length > 0) {
-    state.decisions.forEach(d => syncToSheets(d));
+    // Nur bei Verbindungsfehler: localStorage als Offline-Fallback
+    const raw = JSON.parse(localStorage.getItem('konsent_data') || '[]');
+    state.decisions = raw.map(migrate);
   }
   state.loading = false;
 }
